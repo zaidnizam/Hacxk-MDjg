@@ -60,7 +60,7 @@ sudo apt install -y nodejs
 3. **Clone the repository:**
 
 ```bash
-git clone https://github.com/yourusername/Hacxk-MD.git
+git clone https://github.com/hacxk/Hacxk-MD.git
 ```
 
 4. **Navigate to the project directory:**
