@@ -29,7 +29,7 @@ To get started with Hacxk-MD, follow these steps for various server environments
 
 ## First, You Need to Obtain a Session
 
-Visit the [website link] and scan the QR code or enter the pairing code. Once completed, the session file will be sent to your paired WhatsApp number. Retrieve that session file.
+Visit the [Hacxk-MD Session Provider](https://github.com/WhiskeySockets/Baileys). and scan the QR code or enter the pairing code. Once completed, the session file will be sent to your paired WhatsApp number. Retrieve that session file.
 
 If a Session folder doesn't exist in your bot, create one. Paste the session file into this folder.
 
