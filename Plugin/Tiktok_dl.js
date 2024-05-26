@@ -29,8 +29,8 @@ module.exports = (Command) => {
 
                     const { metadata, videoDetails } = result;
 
-                console.log(videoDetails)
-                
+                    console.log(videoDetails)
+
                     const {
                         title,
                         react_count,
@@ -68,7 +68,7 @@ module.exports = (Command) => {
                         `🖼️ *Avatar*: ${avatar}`;
 
                     const sentMessage = await sock.sendMessage(m.key.remoteJid, { text: message, matchedText: input, canonicalUrl: input, previewType: true, thumbnailWidth: 630 }, { quoted: m });
-
+                    await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
                     const replyHandler = async (msg) => {
                         if (msg.message?.extendedTextMessage?.contextInfo?.stanzaId === sentMessage.key.id) {
                             const replyText = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
@@ -89,8 +89,8 @@ module.exports = (Command) => {
                             }
                         }
                     };
-                    
-                    
+
+
                     sock.ev.on('messages.upsert', async ({ messages }) => {
                         for (let msg of messages) {
                             await replyHandler(msg);
@@ -114,7 +114,7 @@ const sanitizeFilename = (filename) => {
 async function downloadTiktok(sock, m, option, url, stitle) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
-
+        await sock.sendMessage(m.key.remoteJid, { react: { text: "⬇️", key: m.key } });
         // Generate filename based on video title
         const title = sanitizeFilename(stitle.toLowerCase().replace(/ /g, '_'));
         const extension = option === 'MP3' ? 'mp3' : 'mp4';
@@ -131,17 +131,35 @@ async function downloadTiktok(sock, m, option, url, stitle) {
         const filePath = path.join(saveDirectory, filename);
 
         fs.writeFileSync(filePath, response.data);
+        await sock.sendMessage(m.key.remoteJid, { react: { text: "⬆️", key: m.key } });
+        if (extension === 'mp4') {
+            // Upload the video to the chat
+            await sock.sendMessage(
+                m.key.remoteJid,
+                {
+                    video: fs.readFileSync(filePath),
+                    mimetype: 'video/mp4',
+                    height: 1152,
+                    width: 2048,
+                    caption: `*Video Title*: ${stitle}\n*Size*: ${Math.round(response.data.length / (1024 * 1024))} MB\n\n𝘏𝘈𝘊𝘟𝘒 𝘔𝘋`
+                },
+                { quoted: m }
+            );
+        } else {
+            // Upload the audio to the chat
+            await sock.sendMessage(
+                m.key.remoteJid,
+                {
+                    audio: fs.readFileSync(filePath),
+                    mimetype: 'audio/mpeg',
+                    caption: `*Video Title*: ${stitle}\n*Size*: ${Math.round(response.data.length / (1024 * 1024))} MB\n\n𝘏𝘈𝘊𝘟𝘒 𝘔𝘋`
+                },
+                { quoted: m }
+            );
+        }
 
-        // Prepare media message details
-        const mediaMessage = {
-            [option === 'MP3' ? 'audio' : 'video']: fs.readFileSync(filePath),
-            mimetype: option === 'MP3' ? 'audio/mp3' : 'video/mp4',
-            width: 1920,
-            caption: `*Video Title*: ${stitle}\n*Size*: ${Math.round(response.data.length / (1024 * 1024))} MB\n\n𝘏𝘈𝘊𝘟𝘒 𝘔𝘋`
-        };
 
-        // Send the media message
-        await sock.sendMessage(m.key.remoteJid, mediaMessage, { quoted: m });
+        await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
 
         // Delete the downloaded video file
         fs.unlink(filePath, (err) => {
