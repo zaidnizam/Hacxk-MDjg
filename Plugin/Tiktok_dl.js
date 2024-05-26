@@ -151,8 +151,7 @@ async function downloadTiktok(sock, m, option, url, stitle) {
                 m.key.remoteJid,
                 {
                     audio: fs.readFileSync(filePath),
-                    mimetype: 'audio/mpeg',
-                    caption: `*Video Title*: ${stitle}\n*Size*: ${Math.round(response.data.length / (1024 * 1024))} MB\n\n𝘏𝘈𝘊𝘟𝘒 𝘔𝘋`
+                    mimetype: 'audio/mpeg'
                 },
                 { quoted: m }
             );
