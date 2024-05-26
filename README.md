@@ -99,6 +99,10 @@ To get started with Hacxk-MD, follow these steps for various server environments
 After installing the dependencies, you can start the bot using:
 
 ```bash
+npm install
+```
+
+```bash
 npm start
 ```
 
