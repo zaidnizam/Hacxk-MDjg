@@ -1,6 +1,4 @@
-Here's an improved and visually appealing version of your `readme.md` file:
 
-```markdown
 # Hacxk-MD
 
 A Powerful and Stunning Whatsapp Bot With [@whiskeysockets/baileys](https://github.com/WhiskeySockets/Baileys).
@@ -121,7 +119,4 @@ For any inquiries or support, please contact us at support@hacxk-md.com.
 Thank you for using Hacxk-MD! If you enjoy the bot, please consider giving us a star on GitHub. ⭐
 ```
 
-**Suggestions for next steps:**
 
-**a. ** Add a section for configuring WhatsApp credentials in the README.
-**b. ** Create a detailed guide for setting up environment variables for Heroku deployment.
