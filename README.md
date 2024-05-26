@@ -1,11 +1,10 @@
-
-# Hacxk-MD
+# Hacxk-MD 🤖
 
 A Powerful and Stunning Whatsapp Bot With [@whiskeysockets/baileys](https://github.com/WhiskeySockets/Baileys).
 
 ## Hacxk-MD 1.1.0 🚀
 
-### 🌟 What's New in Hacxk-MD 🌟
+### ✨ What's New in Hacxk-MD ✨
 
 1. 🎥 **Fixed YouTube Video Downloader**
 2. 🎞️ **Added YouTube Video HD Downloader** (Limited File Size)
@@ -23,19 +22,19 @@ Keep supporting us to bring more exciting features and improvements! 💖
 
 ---
 
-## Installation
+## Installation 💻
 
 To get started with Hacxk-MD, follow these steps for various server environments:
 
-## First, You Need to Obtain a Session
+## First, You Need to Obtain a Session 🔐
 
-Visit the [Hacxk-MD Session Provider](https://github.com/WhiskeySockets/Baileys). and scan the QR code or enter the pairing code. Once completed, the session file will be sent to your paired WhatsApp number. Retrieve that session file.
+Visit the [Hacxk-MD Session Provider](https://github.com/WhiskeySockets/Baileys) and scan the QR code or enter the pairing code. Once completed, the session file will be sent to your paired WhatsApp number. Retrieve that session file.
 
 If a Session folder doesn't exist in your bot, create one. Paste the session file into this folder.
 
 The next step is hosting.
 
-### Installation on a VPS (e.g., DigitalOcean, AWS, etc.)
+### Installation on a VPS (e.g., DigitalOcean, AWS, etc.) 🚀
 
 1. **Update your system packages:**
    ```bash
@@ -68,7 +67,7 @@ The next step is hosting.
    npm start
    ```
 
-### Installation on Koyeb
+### Installation on Koyeb ☁️
 
 1. **Create a new application:**
    - Go to your Koyeb dashboard and create a new application.
@@ -83,7 +82,7 @@ The next step is hosting.
 4. **Deploy the application:**
    - Click on "Deploy" to start the deployment process.
 
-### Installation on Heroku
+### Installation on Heroku 🌐
 
 1. **Create a new application:**
    - Go to your Heroku dashboard and create a new application.
@@ -102,7 +101,7 @@ The next step is hosting.
 
 ---
 
-## Usage
+## Usage 🚀
 
 After installing the dependencies, you can start the bot using:
 
@@ -118,17 +117,15 @@ Ensure you have configured your Whatsapp credentials in the configuration file b
 
 ---
 
-## License
+## License 📝
 
 This project is licensed under the MIT License. See the LICENSE file for details.
 
 ---
 
-## Contact
+## Contact 📧
 
 For any inquiries or support, please contact us at support@hacxk-md.com.
 
 Thank you for using Hacxk-MD! If you enjoy the bot, please consider giving us a star on GitHub. ⭐
 ```
-
-
