@@ -30,7 +30,11 @@ To get started with Hacxk-MD, follow these steps for various server environments
 
 Visit the [Hacxk-MD Session Provider](https://github.com/WhiskeySockets/Baileys) and scan the QR code or enter the pairing code. Once completed, the session file will be sent to your paired WhatsApp number. Retrieve that session file.
 
-If a Session folder doesn't exist in your bot, create one. Paste the session file into this folder.
+> [!CAUTION]
+> If QR CODE INVALID Message Comes While Scaning QR Just Restart Your NodeJS Process.
+
+> [!NOTE]
+> If a Session folder doesn't exist in your bot, create one. Paste the session file into created folder.
 
 The next step is hosting.
 
