@@ -11,15 +11,14 @@ require('./Config');
 const { handleCommand, loadCommandsFromFolder } = require('./Lib/CommandHandle/CommandHandle');
 
 // Check if the folder exists
-if (fs) {
+if (fs.existsSync(path.join(__dirname, '/Plugin'))) {
     // Load commands from the Plugin folder
     console.log("\x1b[33m🔎 Loading Plugin Folder!\x1b[0m");
-    loadCommandsFromFolder(path.join(__dirname + '/Plugin'));
+    loadCommandsFromFolder(path.join(__dirname, '/Plugin'));
     console.log("\x1b[32m✅ Plugin Loaded Successfully. Now Trying To Start The Bot.\x1b[0m");    
 } else {
     console.error('\x1b[31m❌ Error: Plugin folder not found.\x1b[0m');
 }
-
 
 // Function to start the WhatsApp bot
 const startHacxkMd = async () => {
