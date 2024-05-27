@@ -131,32 +131,35 @@ Ensure you have configured your Whatsapp credentials in the configuration file b
 <summary><strong>📇 Version History</strong></summary>
 <details>
  <summary><strong>Hacxk-MD V1.1.8: The Unseen Depths</strong></summary>
-
-   
 🎉 Hacxk-MD 1.1.8 is Here! 🚀
 
-Unleash the Power of a Bot on WhatsApp! 🤖
+### Unleash the Power of a Bot on WhatsApp! 🤖
+
 Your favorite WhatsApp assistant just leveled up! 💪
 
-🎁 Exciting New Features & Enhancements:
+🎁 **Exciting New Features & Enhancements:**
 
-Group Management Pro: 👑 Take charge of your groups with effortless promote/demote commands.
-Hacxk-MD is Alive! 💓 Check in on your bot buddy and see what it's up to.
-Sticker Mania: 📸 Transform your photos into fun and expressive stickers in a snap.
-Bug Zapper: 🐞 We've squashed those pesky bugs for a smoother, more enjoyable experience.
-💖 Your Support Makes Us Shine!
+* **Group Management Pro:** 👑 Take charge of your groups with effortless promote/demote commands.
+* **Hacxk-MD is Alive!** 💓 Check in on your bot buddy and see what it's up to.
+* **Sticker Mania:** 📸 Transform your photos into fun and expressive stickers in a snap.
+* **Bug Zapper:** 🐞 We've squashed those pesky bugs for a smoother, more enjoyable experience.
 
-We couldn't have done it without your incredible feedback and enthusiasm. 🙌 You inspire us to keep making Hacxk-MD the absolute best WhatsApp companion it can be.
+---
+💖 **Your Support Makes Us Shine!**
 
-📢 Share the Love!
+We couldn't have done it without your incredible feedback and enthusiasm. 🙌  You inspire us to keep making Hacxk-MD the absolute best WhatsApp companion it can be. 
 
-Tell your friends about Hacxk-MD and let them join in on the AI-powered fun!
+📢 **Share the Love!**
 
-🤝 Connect with Us:
+Tell your friends about Hacxk-MD and let them join in on the AI-powered fun! 
 
-[GitHub Repository for Hacxk-MD](https://github.com/hacxk/Hacxk-MD)
+🤝 **Connect with Us:**
 
-🎉 Together, let's make WhatsApp even more awesome!
+[[GitHub Repository for Hacxk-MD](https://github.com/hacxk/Hacxk-MD)](https://github.com/hacxk/Hacxk-MD) 
+
+---
+
+🎉 **Together, let's make WhatsApp even more awesome!**
 </details>
    
 <details>
