@@ -3,28 +3,6 @@
 
 A Powerful and Stunning Whatsapp Bot With [@whiskeysockets/baileys](https://github.com/WhiskeySockets/Baileys).
 
-<details>
-<summary><strong>📇 Version History</strong></summary>
-
-<details>
-<summary><strong>V1.1.0</strong></summary>
-
-## Hacxk-MD 1.1.0 🚀
-
-### ✨ What's New in Hacxk-MD ✨
-
-1. 🎥 **Fixed YouTube Video Downloader**
-2. 🎞️ **Added YouTube Video HD Downloader** (Limited File Size)
-3. 🎵 **Added YouTube Audio Downloader**
-4. 📶 **Added Ping Command**
-5. 🎬 **Added TikTok Video/Audio HD/SD Downloader Without Watermark**
-6. 🔄 **Added Always Online** (Every 25 Minutes Bot Will Restart for Better Performance)
-
-</details>
-
-</details>
-
-
 Thank you for supporting Hacxk-MD! 🙏
 
 Your support means the world to us. 🌍
@@ -148,6 +126,27 @@ npm start
 Ensure you have configured your Whatsapp credentials in the configuration file before starting the bot.
 
 ---
+
+<details>
+<summary><strong>📇 Version History</strong></summary>
+
+ <details>
+ <summary><strong>V1.1.0</strong></summary>
+
+## Hacxk-MD 1.1.0 🚀
+
+### ✨ What's New in Hacxk-MD ✨
+
+1. 🎥 **Fixed YouTube Video Downloader**
+2. 🎞️ **Added YouTube Video HD Downloader** (Limited File Size)
+3. 🎵 **Added YouTube Audio Downloader**
+4. 📶 **Added Ping Command**
+5. 🎬 **Added TikTok Video/Audio HD/SD Downloader Without Watermark**
+6. 🔄 **Added Always Online** (Every 25 Minutes Bot Will Restart for Better Performance)
+
+ </details>
+
+</details>
 
 ## License 📝
 
