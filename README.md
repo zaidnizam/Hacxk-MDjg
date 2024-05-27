@@ -137,9 +137,9 @@ Ensure you have configured your Whatsapp credentials in the configuration file b
 
 ### ✨ What's New in Hacxk-MD ✨
 
--🛠️ Fixed Session Auto Deletion
--⚙️ Added Session Handle
--🐛 Fixed Some Main Bugs & Errors
+- 🛠️ Fixed Session Auto Deletion**
+- ⚙️ Added Session Handle**
+- 🐛 Fixed Some Main Bugs & Errors**
 
  </details>
 
