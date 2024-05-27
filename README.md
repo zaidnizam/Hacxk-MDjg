@@ -129,7 +129,36 @@ Ensure you have configured your Whatsapp credentials in the configuration file b
 
 <details>
 <summary><strong>📇 Version History</strong></summary>
+<details>
+ <summary><strong>Hacxk-MD V1.1.8: The Unseen Depths</strong></summary>
 
+   
+🎉 Hacxk-MD 1.1.8 is Here! 🚀
+
+Unleash the Power of a Bot on WhatsApp! 🤖
+Your favorite WhatsApp assistant just leveled up! 💪
+
+🎁 Exciting New Features & Enhancements:
+
+Group Management Pro: 👑 Take charge of your groups with effortless promote/demote commands.
+Hacxk-MD is Alive! 💓 Check in on your bot buddy and see what it's up to.
+Sticker Mania: 📸 Transform your photos into fun and expressive stickers in a snap.
+Bug Zapper: 🐞 We've squashed those pesky bugs for a smoother, more enjoyable experience.
+💖 Your Support Makes Us Shine!
+
+We couldn't have done it without your incredible feedback and enthusiasm. 🙌 You inspire us to keep making Hacxk-MD the absolute best WhatsApp companion it can be.
+
+📢 Share the Love!
+
+Tell your friends about Hacxk-MD and let them join in on the AI-powered fun!
+
+🤝 Connect with Us:
+
+[GitHub Repository for Hacxk-MD](https://github.com/hacxk/Hacxk-MD)
+
+🎉 Together, let's make WhatsApp even more awesome!
+</details>
+   
 <details>
  <summary><strong>Hacxk-MD v1.1.2: Packed with Bug Fixes</strong></summary>
 
