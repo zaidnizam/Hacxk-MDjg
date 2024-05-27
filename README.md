@@ -3,6 +3,8 @@
 
 A Powerful and Stunning Whatsapp Bot With [@whiskeysockets/baileys](https://github.com/WhiskeySockets/Baileys).
 
+<details>
+<summary>V1.1.0</summary>
 ## Hacxk-MD 1.1.0 🚀
 
 ### ✨ What's New in Hacxk-MD ✨
@@ -13,6 +15,7 @@ A Powerful and Stunning Whatsapp Bot With [@whiskeysockets/baileys](https://gith
 4. 📶 **Added Ping Command**
 5. 🎬 **Added TikTok Video/Audio HD/SD Downloader Without Watermark**
 6. 🔄 **Added Always Online** (Every 25 Minutes Bot Will Restart for Better Performance)
+</details>
 
 ---
 
