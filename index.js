@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs')
 require('esm')(module);
 require('./Config');
+const { SessionHandle } = require('./Lib/SessionHandle/SessionHandle');
 const { handleCommand, loadCommandsFromFolder } = require('./Lib/CommandHandle/CommandHandle');
 
 // Check if the folder exists
@@ -15,7 +16,7 @@ if (fs.existsSync(path.join(__dirname, '/Plugin'))) {
     // Load commands from the Plugin folder
     console.log("\x1b[33m🔎 Loading Plugin Folder!\x1b[0m");
     loadCommandsFromFolder(path.join(__dirname, '/Plugin'));
-    console.log("\x1b[32m✅ Plugin Loaded Successfully. Now Trying To Start The Bot.\x1b[0m");    
+    console.log("\x1b[32m✅ Plugin Loaded Successfully. Now Trying To Start The Bot.\x1b[0m");
 } else {
     console.error('\x1b[31m❌ Error: Plugin folder not found.\x1b[0m');
 }
@@ -66,9 +67,17 @@ const startHacxkMd = async () => {
             if (qr) {
                 log('QR code available:', '📷');
                 console.log(qr);
+                const result = await SessionHandle("Paste");
+                if (result.ok === 'Ok') {
+                    console.log('\x1b[32m%s\x1b[0m', '✅ Operation succeeded, closing the socket.');
+                    await sock.end();
+                } else {
+                    console.log('\x1b[31m%s\x1b[0m', '❌ Operation failed.');
+                }
             }
 
             if (connection === "open") {
+                await SessionHandle("Get")
                 log('Connection opened!', '✅');
                 sock.sendReadReceiptAck = true;
                 const ownerName = global.botSettings.ownerName[0];
@@ -78,8 +87,8 @@ const startHacxkMd = async () => {
                 await delay(2500);
 
                 const wakeupmsg = await sock.sendMessage(sock.user.id, {
-                    text: 
-`                         
+                    text:
+                        `                         
 ❪👑❫ *Owner Name*: ${ownerName}
 ❪🔢❫ *Number*    : ${number}
 ❪🤖❫ *Bot Name*  : ${botName}
@@ -134,7 +143,7 @@ const startHacxkMd = async () => {
                             break;
                         case DisconnectReason.timedOut:
                             log('Connection timed out!', '⌛');
-                             delay(1000)
+                            delay(1000)
                             startHacxkMd()
                             break;
                         default:
@@ -162,17 +171,17 @@ const startHacxkMd = async () => {
         sock.ev.on('messages.upsert', async ({ messages, type }) => {
             try {
                 const m = messages[0];
-                console.log(m)
-                    if (worktype === 'private') {
-                        if (m.key.remoteJid.endsWith('@s.whatsapp.net')) {
-                            await handleCommand(m, sock, delay);
-                        } else {
-                            return;
-                        }
+                  console.log(m)
+                if (worktype === 'private') {
+                    if (m.key.remoteJid.endsWith('@s.whatsapp.net')) {
+                        await handleCommand(m, sock, delay);
                     } else {
-                        if (m.key.remoteJid.endsWith('@g.us') || m.key.remoteJid.endsWith('@s.whatsapp.net')) {
-                            await handleCommand(m, sock, delay);
-                        }
+                        return;
+                    }
+                } else {
+                    if (m.key.remoteJid.endsWith('@g.us') || m.key.remoteJid.endsWith('@s.whatsapp.net')) {
+                        await handleCommand(m, sock, delay);
+                    }
                 }
             } catch (error) {
                 console.log(error);
