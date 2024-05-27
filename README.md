@@ -130,8 +130,21 @@ Ensure you have configured your Whatsapp credentials in the configuration file b
 <details>
 <summary><strong>📇 Version History</strong></summary>
 
+<details>
+ <summary><strong>Hacxk-MD v1.1.2: Packed with Bug Fixes</strong></summary>
+
+## 🌟 Hacxk-MD 1.1.2 🚀
+
+### ✨ What's New in Hacxk-MD ✨
+
+-🛠️ Fixed Session Auto Deletion
+-⚙️ Added Session Handle
+-🐛 Fixed Some Main Bugs & Errors
+
+ </details>
+
  <details>
- <summary><strong>V1.1.0</strong></summary>
+ <summary><strong>Hacxk-MD V1.1.0: Packed with New Features</strong></summary>
 
 ## Hacxk-MD 1.1.0 🚀
 
