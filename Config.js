@@ -9,7 +9,7 @@ global.botSettings.botNumber = [''] // Don't Need to input bot will update autom
 global.botSettings.ownerName = ['Mr - Zaid']
 global.botSettings.botName = ['Hacxk - MD']
 global.botSettings.botPrefix = ['.'] // You can use prefix as /, ., # don't use [!] this
-global.botSettings.botWorkMode = ['Private'] // If Private don't Work bot command in group if you want to work use Public
+global.botSettings.botWorkMode = ['Public'] // If Private don't Work bot command in group if you want to work use Public
 global.botSettings.greetings = true // This mean if a contact join or leave a group sending welcome and goodbye message if 'true' it works if 'false' not work
 
 // ------------------------------------------------------------------------------------------------------------------------------------------\\

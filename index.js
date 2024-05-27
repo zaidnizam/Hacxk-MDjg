@@ -39,7 +39,6 @@ const startHacxkMd = async () => {
         const { state, saveCreds } = await useMultiFileAuthState(__dirname + '/Session');
         const sock = makeWASocket({
             printQRInTerminal: true,
-            qrTimeout: 15000,
             mobile: false,
             keepAliveIntervalMs: 10000,
             syncFullHistory: false,
@@ -52,7 +51,7 @@ const startHacxkMd = async () => {
                 creds: state.creds,
                 keys: makeCacheableSignalKeyStore(state.keys, logger),
             },
-            linkPreviewImageThumbnailWidth: 1280,
+            linkPreviewImageThumbnailWidth: 1980,
             generateHighQualityLinkPreview: true,
         });
 

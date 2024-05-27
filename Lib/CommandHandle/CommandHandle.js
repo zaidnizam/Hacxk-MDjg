@@ -12,26 +12,47 @@ function Command({ cmd, desc, react, type, handler }) {
 
 async function handleCommand(m, sock, delay) {
     try {
-        const textMessage = m.message?.conversation.toLowerCase() || m.message?.extendedTextMessage?.text.toLowerCase() || "";
+        const textMessage = m.message?.conversation.toLowerCase() ||
+            m.message?.extendedTextMessage?.text.toLowerCase() || "";
         const OriginalText = m.message?.conversation || m.message?.extendedTextMessage?.text || "";
-        const matchedCommand = commands.find(command => {
-            if (Array.isArray(command.cmd)) {
-                return command.cmd.some(cmd => textMessage.startsWith(commandPrefix + cmd));
+
+        const partialCommand = textMessage.split(" ")[0]; // Get the first word (potential partial command)
+
+        // Check if the partialCommand starts with the prefix
+        if (partialCommand.startsWith(commandPrefix)) {
+            const matchedCommand = commands.find(command => {
+                if (Array.isArray(command.cmd)) {
+                    return command.cmd.some(cmd => textMessage.startsWith(commandPrefix + cmd));
+                } else {
+                    return textMessage.startsWith(commandPrefix + command.cmd);
+                }
+            });
+
+            if (matchedCommand) {
+                await sock.presenceSubscribe(m.key.remoteJid);
+                await delay(250);
+                await sock.readMessages([m.key]);
+                if (matchedCommand.react) {
+                    await sock.sendMessage(m.key.remoteJid, { react: { text: matchedCommand.react, key: m.key } });
+                }
+                await sock.sendPresenceUpdate('composing', m.key.remoteJid);
+                await delay(750);
+                await sock.sendPresenceUpdate('paused', m.key.remoteJid);
+                await matchedCommand.handler(m, sock, commands);
             } else {
-                return textMessage.startsWith(commandPrefix + command.cmd);
+                // Command not found, provide suggestions
+                const similarCommands = commands.filter(command => {
+                    return command.cmd.some(cmd => cmd.startsWith(partialCommand.slice(commandPrefix.length)));
+                });
+
+                if (similarCommands.length > 0) {
+                    const suggestions = similarCommands.map(cmd => commandPrefix + cmd.cmd[0]).join(", ");
+                    await sock.sendMessage(m.key.remoteJid, { react: { text: '🧐', key: m.key }})
+                    await sock.sendMessage(m.key.remoteJid, {
+                        text: `Command not found.🧐 Did you mean: *${suggestions}*?`
+                    }, { quoted: m });
+                }
             }
-        });
-        if (matchedCommand) {
-            await sock.presenceSubscribe(m.key.remoteJid);
-            await delay(250);
-            await sock.readMessages([m.key]);
-            if (matchedCommand.react) {
-                await sock.sendMessage(m.key.remoteJid, { react: { text: matchedCommand.react, key: m.key } });
-            }
-            await sock.sendPresenceUpdate('composing', m.key.remoteJid);
-            await delay(750);
-            await sock.sendPresenceUpdate('paused', m.key.remoteJid);
-            await matchedCommand.handler(m, sock, commands);
         }
     } catch (error) {
         console.error("An error occurred:", error);

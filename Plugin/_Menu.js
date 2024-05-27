@@ -4,16 +4,16 @@ const Jimp = require('jimp');
 
 module.exports = (Command) => {
     Command({
-        cmd: ['menu', 'help'], // Define multiple commands as an array
+        cmd: ['menu', 'help'],
         desc: 'Show All Commands',
-        react: "📜", // Reaction emoji
+        react: "📜",
         type: 'BOT COMMANDS',
-        handler: async (m, sock, commands) => { // Pass 'commands' array as an argument
+        handler: async (m, sock, commands) => {
             const BOT_NAME = global.botSettings.botName[0];
             const ownerNumbers = global.botSettings.ownerNumbers[0];
             const ownerName = global.botSettings.ownerName[0];
             const prefix = global.botSettings.botPrefix[0];
-            const requestedUserName = m.pushName;
+            const requestedUserName = m.pushName || "User";
             const requestedUserNumber = m.key.remoteJid.endsWith('@g.us') ? m.key.participant : m.key.remoteJid;
 
             const now = new Date();
@@ -31,21 +31,8 @@ module.exports = (Command) => {
             const date = now.toLocaleDateString();
             const time = now.toLocaleTimeString();
 
-            let menu = `
-*Hey ${greeting}* ${requestedUserName}\n
-╭━━━━━ᆫ ♛${BOT_NAME} ᄀ━
-┃ ⎆  *OWNER*:  ${ownerName}
-┃ ⎆  *NUMBER*:  ${ownerNumbers}
-┃ ⎆  *PREFIX*: ${prefix}
-┃ ⎆  *DATE*: ${date}
-┃ ⎆  *TIME*: ${time}
-╰━━━━━━━━━━━━━━━\n
-`;
-
-            // Object to store commands categorized by their type
+            // Categorize commands
             const commandTypes = {};
-
-            // Iterate over commands to categorize them
             commands.forEach(command => {
                 if (!commandTypes[command.type]) {
                     commandTypes[command.type] = [];
@@ -53,21 +40,34 @@ module.exports = (Command) => {
                 commandTypes[command.type].push(command);
             });
 
-            let menuText = menu; // Initialize menuText with the initial menu content
+            // Build beautiful text-based menu
+            let menuText = `
+ ╭━━━━━[ *${BOT_NAME}* ]━╮
+ ┃ ✨ Hello, *${requestedUserName}*! ✨
+ ┃ 👋 ${greeting}!
+ 
+ *Need help? Here's what I can do:*
+ `;
 
-
-            // Iterate over categorized commands to construct menu text
             for (const [type, commandsOfType] of Object.entries(commandTypes)) {
-                menuText += `\n♛   *${String.fromCharCode(55349, 56672)}  ${type}  ${String.fromCharCode(55349, 56672)}*\n\n`; // Bold Command Text
+                menuText += `\n*${type}*\n`;
                 commandsOfType.forEach(command => {
                     const cmds = Array.isArray(command.cmd) ? command.cmd : [command.cmd];
                     cmds.forEach(cmd => {
-                        menuText += `> *╰┈➤\`${prefix}${cmd}\`* - \`➤${command.desc}\`\n`;
+                        menuText += `- \`${prefix}${cmd}\` - ${command.desc}\n`;
                     });
                 });
-                menuText += "\n";
             }
-    
+
+            menuText += `
+ \nTo get more information about a command, type:
+ \`${prefix}help <command_name>\`
+ 
+ For any questions or issues, feel free to contact the owner:
+ ${ownerName} - ${ownerNumbers} 
+ ╰────────────────
+ `;
+
 
             // Load the image and add the user's name to it
             const imagePath = 'Assets/_MenuAssets/menuImage1.png';
@@ -105,28 +105,12 @@ module.exports = (Command) => {
             // Print the text with a shadow
             const shadowOffset = 2;
             image.print(font, x + shadowOffset, y + shadowOffset, { text, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER, alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE }, textWidth, textHeight)
-                 .print(font, x, y, { text, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER, alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE }, textWidth, textHeight);
+                .print(font, x, y, { text, alignmentX: Jimp.HORIZONTAL_ALIGN_CENTER, alignmentY: Jimp.VERTICAL_ALIGN_MIDDLE }, textWidth, textHeight);
 
             // Save the modified image to a buffer
             const buffer = await image.getBufferAsync(Jimp.MIME_PNG);
 
-            // Send the image with the menu text as caption
-            // await sock.sendMessage(m.key.remoteJid, { 
-            //     text: menuText,
-            //     contextInfo: {
-            //         externalAdReply: {
-            //             showAdAttribution: false,
-            //             renderLargerThumbnail: true,
-            //             width: 1280,
-            //             title: "HACXK MD",
-            //             body: "HACXK MD POWERFULL WHATSAPP BOT",
-            //             previewType: 1,
-            //             mediaType: 1, // 0 for none, 1 for image, 2 for video
-            //             thumbnail: buffer,
-            //             mediaUrl: ``,
-            //         },
-            //     },
-            // });
+
             await sock.sendMessage(m.key.remoteJid, { image: buffer, caption: menuText }, { quoted: m });
         }
     });

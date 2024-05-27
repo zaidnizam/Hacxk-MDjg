@@ -19,6 +19,7 @@ module.exports = (Command) => {
             await sock.sendMessage(m.key.remoteJid, { 
                 text: `Ping: ${pingTime.toFixed(2)} ms` 
             }, { quoted: m });
+
         }
     });
 };
