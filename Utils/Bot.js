@@ -45,7 +45,7 @@ const {
         downloadHistory: false,
         markOnlineOnConnect: true,
         logger,
-        version: [2, 2413, 1],
+        version: [2, 3000, 1013780141],
         browser: Browsers.macOS("Desktop"),
         auth: {
           creds: state.creds,

@@ -23,16 +23,18 @@ module.exports = (Command) => {
             const pingTime = endTime - startTime; // Now calculate pingTime
 
             const responseMessage = `
-*${global.botSettings.botName[0]} is Alive and Kicking!* 💪✨
-
-*System Stats:*
-- Response Time: ${pingTime.toFixed(2)} ms
-- Current Time: ${currentTime}
-- Uptime: ${uptime}
-- Platform: ${os.platform()}
-- Memory Usage: ${memoryUsage.toFixed(2)} MB
-- CPU Architecture: ${os.arch()}
-`;
+            ╔═════ ≪ °❈° ≫ ═════╗
+             *${global.botSettings.botName[0]} is Online!* ✨
+            ╚═════ ≪ °❈° ≫ ═════╝
+            
+            📊 *System Stats:*
+            ├  Response Time: ${pingTime.toFixed(2)} ms
+            ├  Current Time: ${currentTime}
+            ├  Uptime: ${uptime}
+            ├  Platform: ${os.platform()}
+            ├  Memory: ${memoryUsage.toFixed(2)} MB
+            └  CPU: ${os.arch()}
+            `;
 
             await sock.sendMessage(m.key.remoteJid, {
                 text: responseMessage,
