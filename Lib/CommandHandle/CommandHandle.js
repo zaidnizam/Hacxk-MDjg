@@ -16,16 +16,14 @@ async function handleCommand(m, sock, delay) {
             m.message?.extendedTextMessage?.text.toLowerCase() || "";
         const OriginalText = m.message?.conversation || m.message?.extendedTextMessage?.text || "";
 
-        const partialCommand = textMessage.split(" ")[0]; // Get the first word (potential partial command)
+        const partialCommand = textMessage.split(" ")[0]; 
 
-        // Check if the partialCommand starts with the prefix
         if (partialCommand.startsWith(commandPrefix)) {
             const matchedCommand = commands.find(command => {
-                if (Array.isArray(command.cmd)) {
-                    return command.cmd.some(cmd => textMessage === commandPrefix + cmd);
-                } else {
-                    return textMessage.startsWith(commandPrefix + command.cmd);
-                }
+                // Ensure command.cmd is an array before using .some()
+                const cmdArray = Array.isArray(command.cmd) ? command.cmd : [command.cmd]; 
+
+                return cmdArray.some(cmd => textMessage.startsWith(commandPrefix + cmd)); 
             });
 
             if (matchedCommand) {
@@ -42,7 +40,8 @@ async function handleCommand(m, sock, delay) {
             } else {
                 // Command not found, provide suggestions
                 const similarCommands = commands.filter(command => {
-                    return command.cmd.some(cmd => cmd.startsWith(partialCommand.slice(commandPrefix.length)));
+                    const cmdArray = Array.isArray(command.cmd) ? command.cmd : [command.cmd];
+                    return cmdArray.some(cmd => cmd.startsWith(partialCommand.slice(commandPrefix.length)));
                 });
 
                 if (similarCommands.length > 0) {
@@ -53,7 +52,7 @@ async function handleCommand(m, sock, delay) {
                     }, { quoted: m });
                 }
             }
-        }
+        } 
     } catch (error) {
         console.error("An error occurred:", error);
     }
