@@ -22,7 +22,7 @@ async function handleCommand(m, sock, delay) {
         if (partialCommand.startsWith(commandPrefix)) {
             const matchedCommand = commands.find(command => {
                 if (Array.isArray(command.cmd)) {
-                    return command.cmd.some(cmd => textMessage.startsWith(commandPrefix + cmd));
+                    return command.cmd.some(cmd => textMessage === commandPrefix + cmd);
                 } else {
                     return textMessage.startsWith(commandPrefix + command.cmd);
                 }
