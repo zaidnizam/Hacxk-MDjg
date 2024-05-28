@@ -1,0 +1,8 @@
+build:
+  docker:
+    web: Dockerfile         # Use the existing Dockerfile
+    # Specify the stage to use for the final image
+    target: runner 
+
+run:
+  web: node index.js   # Command to start your application in the "runner" stage

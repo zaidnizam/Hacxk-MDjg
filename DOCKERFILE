@@ -1,7 +1,44 @@
-FROM node:18.16.0-bullseye-slim
+# Stage 1: Builder
+FROM node:14.21.3 AS builder
 
 WORKDIR /app
-COPY package*.json ./
-RUN npm install
+
+ENV NODE_VERSION=14.21.3
+
+# Install system dependencies for building native modules and tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    ffmpeg \
+    imagemagick \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install node-gyp and yarn globally
+RUN npm install -g node-gyp yarn
+
+# Copy package files and install dependencies
+COPY package.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+# Copy the application code and build
 COPY . .
-CMD ["npm", "start"]
+RUN yarn build
+
+
+# Stage 2: Runner
+FROM node:14.21.3-alpine
+
+WORKDIR /app
+
+# Non-root user for security (optional)
+USER node
+
+# Copy only the necessary files from the builder stage
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+
+# Expose the port your application listens on
+EXPOSE 5000
+
+# Set the command to run your application (replace with your actual start script)
+CMD ["node", "index.js"] 
