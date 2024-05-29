@@ -130,6 +130,51 @@ Ensure you have configured your Whatsapp credentials in the configuration file b
 <details>
 <summary><strong>📇 Version History</strong></summary>
 <details>
+ <summary><strong>🎉 **Hacxk-MD 2.6.1: The WhatsApp Bot Powerhouse!** 🚀</strong></summary>
+
+🎉 **Hacxk-MD 2.6.1: The WhatsApp Bot Powerhouse!** 🚀
+
+Get ready to supercharge your WhatsApp experience with Hacxk-MD's latest release! This update is packed with features that empower you and your groups, while fixing bugs and polishing performance.
+
+✨ **What's New:**
+
+* **Media Maestro:** 
+    - **Tiktok Download:** Discover and download trending Tiktok videos directly within WhatsApp. 🎶
+    - **Spotify Integration:**  Search and download your favorite Spotify tracks effortlessly. 🎵
+* **Group Guru:**
+    - **Promote/Demote/Kick:** Manage your group members with ease using simple commands. 💪
+    - **Auto Cleanup:** Keep your chats tidy by automatically removing downloaded files. 🧹
+* **Under the Hood:**
+    - **Bug Fixes:** We've squashed pesky bugs for a smoother experience. 🛠️
+    - **Stability Improvements:** Your bot will be even more reliable and responsive. ⚡
+
+💖 **We Value Your Feedback!**
+
+Thank you for your invaluable support and suggestions! Your input is essential in helping us make Hacxk-MD the ultimate WhatsApp bot. 
+
+📣 **Spread the Word:**
+
+Share the joy of AI-powered convenience with your friends and family! Invite them to join the Hacxk-MD community.
+
+🤝 **Connect with Us:**
+
+Stay tuned for future updates and exciting new features! You can find us at:
+
+* **GitHub Repository:** [https://github.com/hacxk/Hacxk-MD](https://github.com/hacxk/Hacxk-MD)
+
+**Technical Details:**
+
+* **Added:** Tiktok search and download functionality, Spotify search and download functionality.
+* **Fixed:** Various bugs related to command handling, media processing, and user experience.
+* **Improved:** Group management capabilities with promote/demote/kick commands, automatic cleanup of downloaded files.
+* **Enhanced:** Overall bot performance and stability.
+
+---
+
+</details>
+
+   
+<details>
  <summary><strong>Hacxk-MD V1.1.8: The Unseen Depths</strong></summary>
 🎉 Hacxk-MD 1.1.8 is Here! 🚀
 
