@@ -29,9 +29,8 @@ module.exports = (Command) => {
                     if (imageCount > 0) {
                         for (let i = 0; i < imageCount; i++) {
                             const imageUrl = results[i].url;
-                            await sock.sendMessage(m.key.remoteJid, { image: { url: imageUrl } });
-                            await delay(2000)
-                            await sock.sendMessage(m.key.remoteJid, { document: { url: imageUrl }, fileName: "Testttttt" })
+                            await sock.sendMessage(m.key.remoteJid, { image: { url: imageUrl } }, { quoted: m });
+                            await delay(500)
                         }
                          // Searching reaction
                     await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
