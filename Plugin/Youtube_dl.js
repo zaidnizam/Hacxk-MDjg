@@ -17,7 +17,7 @@ function getVideoIdFromUrl(link) {
 
 module.exports = (Command) => {
     Command({
-        cmd: ['yt', 'play', 'ytmp4', 'video', 'song', 'ytmp3', 'ytaudio'],
+        cmd: ['yt', 'ytmp4', 'video', 'ytmp3', 'ytaudio'],
         desc: 'Download YouTube Video',
         react: "▶️",
         type: 'YT DOWNLOADER COMMANDS',

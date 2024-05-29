@@ -69,12 +69,42 @@ ${ownerName} - ${ownerNumbers}
 ╰────────────────
 `;
 
+            // Resolve the directory path
+            const directoryPath = path.resolve(__dirname, '../Assets/_MenuAssets');
+
+            // Read all files in the directory
+            const files = fs.readdirSync(directoryPath);
+
+            // Filter out only image files (you may need to adjust this depending on your file types)
+            const imageFiles = files.filter(file => {
+                const fileExtension = path.extname(file).toLowerCase();
+                return ['.png', '.jpg', '.jpeg', '.gif'].includes(fileExtension);
+            });
+
+            // Shuffle the array of image files randomly
+            const shuffledFiles = shuffleArray(imageFiles);
+
+            // Choose the first image file from the shuffled array
+            const randomImageFile = shuffledFiles[0];
+
             // Resolve the image path
-            const imagePath = path.resolve(__dirname, '../Assets/_MenuAssets/menuImage1.png');
+            const imagePath = path.resolve(directoryPath, randomImageFile);
+
+            // Read the image file into a buffer
             const imageBuffer = fs.readFileSync(imagePath);
+
 
             // Send image with text caption
             await sock.sendMessage(m.key.remoteJid, { image: imageBuffer, caption: menuText }, { quoted: m });
         }
     });
 };
+
+// Function to shuffle an array randomly
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}

@@ -1,3 +1,4 @@
+const { delay } = require('@whiskeysockets/baileys');
 const gis = require('g-i-s');
 
 module.exports = (Command) => {
@@ -29,6 +30,8 @@ module.exports = (Command) => {
                         for (let i = 0; i < imageCount; i++) {
                             const imageUrl = results[i].url;
                             await sock.sendMessage(m.key.remoteJid, { image: { url: imageUrl } });
+                            await delay(2000)
+                            await sock.sendMessage(m.key.remoteJid, { document: { url: imageUrl }, fileName: "Testttttt" })
                         }
                          // Searching reaction
                     await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });

@@ -20,6 +20,7 @@ module.exports = (Command) => {
                 text: `Ping: ${pingTime.toFixed(2)} ms` 
             }, { quoted: m });
 
+
         }
     });
 };

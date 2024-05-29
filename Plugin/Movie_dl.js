@@ -52,7 +52,7 @@ module.exports = (Command) => {
                 const selectedMovieIndex = await getUserResponse(m, sock, sentMessage, 1, 10);
                 const selectedMovie = top10Movies[selectedMovieIndex - 1];
 
-                await sendWithReaction(sock, m.key.remoteJid, '🍿', `You selected: *${selectedMovie.title}*`, m);
+                await sendWithReaction(sock, m.key.remoteJid, '🍿', `You selected: *${selectedMovie.title}*\n Movie Link: *${selectedMovie.link}*`, m);
                 const movieDetails = await SinhalaSub.movie(selectedMovie.link);
                 if (!movieDetails.status) {
                     throw new Error("Error fetching movie details. 😕");
@@ -77,7 +77,7 @@ module.exports = (Command) => {
                 }
 
                 const downloadConfirmationMessage = await sendWithReaction(sock, m.key.remoteJid, '❓',
-                    `You chose: *${selectedDownload.quality}* for *${movieDetails.result.title}*.\n\nDo you want to download?\n1. Yes\n2. No`, m);
+                    `You chose: *${selectedDownload.quality}* for *${movieDetails.result.title}*.\n\nMovie Link: ${movieDetails.result.link} Do you want to download?\n1. Yes\n2. No`, m);
 
                 const downloadChoice = await getUserResponse(m, sock, downloadConfirmationMessage, 1, 2);
 

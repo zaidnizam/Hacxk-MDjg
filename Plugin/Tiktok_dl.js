@@ -2,6 +2,7 @@ const tik = require('rahad-media-downloader');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
+const { text } = require('figlet');
 
 module.exports = (Command) => {
     Command({
@@ -97,7 +98,146 @@ module.exports = (Command) => {
                         }
                     });
                 } else {
-                    await sock.sendMessage(m.key.remoteJid, { text: "Please send a valid TikTok link to download." }, { quoted: m });
+                    sock.sendMessage(m.key.remoteJid, { text: `Searching for keyword: ${input}` })
+                    const url = `https://api.junn4.my.id/search/tiktoksearch?query=${input}`
+
+                    const result = await axios.get(url); // Wait for the result of the GET request
+                
+                    const { title, cover, origin_cover, no_watermark, watermark, music } = result.data.result;
+
+
+
+
+
+                    const message = `
+📹 *HACXK MD TIKTOK DOWNLOADER* 📹
+       
+*Title:* ${title}
+       
+*Download Video As:*
+       
+1️⃣ No Watermark
+2️⃣ With Watermark
+3️⃣ Only Sound`;
+
+
+
+
+
+                    try {
+                        const sentMessages = await sock.sendMessage(m.key.remoteJid, { text: message }, { quoted: m });
+
+                        let responseHandled = false;  // Flag to track if a valid response has been handled
+
+                        const replyHandler = async (msg) => {
+                            if (responseHandled) return;  // If a valid response has been handled, skip further processing
+
+                            if (msg.message?.extendedTextMessage?.contextInfo?.stanzaId === sentMessages.key.id) { // Check if sentMessages is defined
+                                const replyText = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
+                                if (replyText === '1') {
+                                    responseHandled = true;  // Set the flag
+                                    sock.sendMessage(m.key.remoteJid, { text: 'Downloading video with watermark...' }, { quoted: msg });
+                                    const url = no_watermark;
+                                    const saveDirectory = path.join(__dirname, 'downloads');
+
+                                    if (!fs.existsSync(saveDirectory)) {
+                                        fs.mkdirSync(saveDirectory);
+                                    }
+
+                                    const formattedTitle = title.toLowerCase().replace(/ /g, '_') + '.mp4';
+                                    const filePath = path.join(saveDirectory, formattedTitle);
+
+                                    const response = await axios.get(url, { responseType: 'arraybuffer' });
+                                    fs.writeFileSync(filePath, response.data);
+
+                                    await sock.sendMessage(
+                                        m.key.remoteJid,
+                                        {
+                                            video: fs.readFileSync(filePath),
+                                            mimetype: 'video/mp4',
+                                            height: 1152,
+                                            width: 2048,
+                                            caption: `*Video Title*: ${title}\n\n𝘏𝘈𝘊𝘟𝘒 𝘔𝘋`
+                                        },
+                                        { quoted: m }
+                                    );
+
+                                    fs.unlinkSync(filePath);
+                                    return;
+                                } else if (replyText === '2') {
+                                    responseHandled = true;  // Set the flag
+                                    sock.sendMessage(m.key.remoteJid, { text: 'Downloading video with watermark...' }, { quoted: msg });
+                                    const url = watermark;
+                                    const saveDirectory = path.join(__dirname, 'downloads');
+
+                                    if (!fs.existsSync(saveDirectory)) {
+                                        fs.mkdirSync(saveDirectory);
+                                    }
+
+                                    const formattedTitle = title.toLowerCase().replace(/ /g, '_') + '.mp4';
+                                    const filePath = path.join(saveDirectory, formattedTitle);
+
+                                    const response = await axios.get(url, { responseType: 'arraybuffer' });
+                                    fs.writeFileSync(filePath, response.data);
+
+                                    await sock.sendMessage(
+                                        m.key.remoteJid,
+                                        {
+                                            video: fs.readFileSync(filePath),
+                                            mimetype: 'video/mp4',
+                                            height: 1152,
+                                            width: 2048,
+                                            caption: `*Video Title*: ${title}\n\n𝘏𝘈𝘊𝘟𝘒 𝘔𝘋`
+                                        },
+                                        { quoted: m }
+                                    );
+
+                                    fs.unlinkSync(filePath);
+                                    return;
+                                } else if (replyText === '3') {
+                                    responseHandled = true;  // Set the flag
+                                    sock.sendMessage(m.key.remoteJid, { text: 'Downloading audio...' }, { quoted: msg });
+                                    const url = music;
+                                    const saveDirectory = path.join(__dirname, 'downloads');
+
+                                    if (!fs.existsSync(saveDirectory)) {
+                                        fs.mkdirSync(saveDirectory);
+                                    }
+
+                                    const formattedTitle = title.toLowerCase().replace(/ /g, '_') + '.mp3';
+                                    const filePath = path.join(saveDirectory, formattedTitle);
+
+                                    const response = await axios.get(url, { responseType: 'arraybuffer' });
+                                    fs.writeFileSync(filePath, response.data);
+
+                                    await sock.sendMessage(
+                                        m.key.remoteJid,
+                                        {
+                                            audio: fs.readFileSync(filePath),
+                                            mimetype: 'audio/mpeg'
+                                        },
+                                        { quoted: m }
+                                    );
+
+                                    fs.unlinkSync(filePath);
+                                    return;
+                                } else {
+                                    sock.sendMessage(m.key.remoteJid, { text: 'Invalid option. Send "1" for video or "3" for audio.' }, { quoted: msg });
+                                }
+                            }
+                        };
+
+                        sock.ev.on('messages.upsert', async ({ messages }) => {
+                            for (let msg of messages) {
+                                await replyHandler(msg);
+                            }
+                        });
+
+                    } catch (err) {
+                        console.error('Error handling replies:', err);
+                        sock.sendMessage(m.key.remoteJid, { text: 'An error occurred while handling replies.' }, { quoted: m });
+                    }
+
                 }
             } catch (error) {
                 console.error('Error occurred:', error);
