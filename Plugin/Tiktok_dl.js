@@ -2,7 +2,6 @@ const tik = require('rahad-media-downloader');
 const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
-const { text } = require('figlet');
 
 module.exports = (Command) => {
     Command({
@@ -99,7 +98,8 @@ module.exports = (Command) => {
                     });
                 } else {
                     sock.sendMessage(m.key.remoteJid, { text: `Searching for keyword: ${input}` })
-                    const url = `https://api.junn4.my.id/search/tiktoksearch?query=${input}`
+                    const ins = input.replace(/\s+/g, "%20");
+                    const url = `https://api.junn4.my.id/search/tiktoksearch?query=${ins}`
 
                     const result = await axios.get(url); // Wait for the result of the GET request
                 

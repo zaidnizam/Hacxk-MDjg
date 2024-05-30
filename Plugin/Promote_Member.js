@@ -1,6 +1,6 @@
 module.exports = (Command) => {
     Command({
-        cmd: ["promote", "up", "upgrade", "admin"],
+        cmd: ["promote", "admin"],
         desc: "Make a member group admin (owner/bot only)",
         react: "✅",
         type: "GROUP COMMANDS & OWNER COMMANDS",
