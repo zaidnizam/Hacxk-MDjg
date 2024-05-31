@@ -1,194 +1,173 @@
-const { SinhalaSub } = require('@sl-code-lords/movie-api');
-const axios = require('axios');
-const fs = require('fs');
-const path = require('path');
+const { hacxkMovieSearch, hacxkMoviedl } = require('hacxk-movie-scrapper');
+const request = require('request');
 
 module.exports = (Command) => {
     Command({
-        cmd: ['movie', 'film'],
-        desc: 'Search for and download movies from SinhalaSub.lk (optional filters: year, genre, language)',
-        react: "🎬",
-        type: 'MEDIA COMMANDS',
+        cmd: 'tamilyogi',
+        desc: 'Get TamilYogi Movie Direct Download Link All Quality',
+        react: "📽️",
+        type: 'SEARCH COMMANDS',
         handler: async (m, sock) => {
-            let args = [];
+            const OriginalText = m.message?.conversation || m.message?.extendedTextMessage?.text || "";
+            const [command, ...args] = OriginalText.split(' ');
 
-            if (m.message?.extendedTextMessage?.text) {
-                args = m.message.extendedTextMessage.text.split(/ +/);
-            } else if (m.message?.conversation) {
-                args = m.message.conversation.split(/ +/);
-            }
-
-            // Remove the command itself from the args array
-            args.shift();
-
-            let query = args.join(" ");
-            let filterType = null;
-            let filterValue = null;
-
-            if (!args.length) {
-                await sock.sendMessage(m.key.remoteJid, { text: "Please provide a movie name to search." }, { quoted: m });
+            if (args.length < 1) {
+                await sock.sendMessage(m.key.remoteJid, { text: 'Please provide a movie name or link *EXAMPLE:*`https://tamilyogi.beer/money-heist-season-01-2017-tamil-dubbed-series-hd-720p-watch-online/` or `Money heist` to search for.' }, { quoted: m });
+                await sock.sendMessage(m.key.remoteJid, { react: { text: "❓", key: m.key } });
                 return;
             }
 
-            if (args.length >= 3 && typeof args[0] === 'string' && ['year', 'genre', 'language'].includes(args[0].toLowerCase())) {
-                filterType = args[0].toLowerCase();
-                filterValue = args.slice(1).join(" ");
-                query = "";
+            await sock.sendMessage(m.key.remoteJid, { react: { text: "🔍", key: m.key } });
+
+            const input = args.join(' ');
+
+            // Check if the input is a link
+            if (isTamilYogiLink(input)) {
+                await getDirectDL2(sock, m, input);
+                return;
             }
 
+            // If not a link, proceed with keyword search
+            await sock.sendMessage(m.key.remoteJid, { text: `Searching for keyword: ${input}` }, { quoted: m });
+
             try {
-                await sendWithReaction(sock, m.key.remoteJid, '🔍', "Searching for movies...", m);
-                const list = await getMovieList(filterType, filterValue, query);
-                if (!list.status) {
-                    throw new Error("Movie not found. 😞");
-                }
+                const result = await hacxkMovieSearch(input);
 
-                const top10Movies = list.results.slice(0, 10);
-                const movieChoices = top10Movies.map((result, index) => `*${index + 1}*. ${result.title} (${result.type === 'movies' ? '🎥' : '📺'})`).join("\n");
+                if (result && Array.isArray(result.results) && result.results.length > 0) {
+                    const message = result.results.map((movie, index) => `${index + 1}. ${movie.title}`).join('\n');
+                    const sentMessage = await sock.sendMessage(m.key.remoteJid, { text: message + '\n\nReply with the number of the movie you want to download. 🎬' }, { quoted: m });
+                    await sock.sendMessage(m.key.remoteJid, { react: { text: "⌛", key: m.key } });
 
-                const sentMessage = await sendWithReaction(sock, m.key.remoteJid, '🍿',
-                    `Here are the top 10 results:\n\n${movieChoices}\n\nPlease select the movie number you want.`, m);
+                    const replyHandler = async (msg) => {
+                        if (msg.message?.extendedTextMessage?.contextInfo?.stanzaId === sentMessage.key.id) {
+                            const replyText = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
+                            const movieIndex = parseInt(replyText, 10) - 1;
+                            await sock.sendMessage(m.key.remoteJid, { react: { text: "🤔", key: m.key } });
+                            if (!isNaN(movieIndex) && movieIndex >= 0 && movieIndex < result.results.length) {
+                                await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
+                                const selectedMovie = result.results[movieIndex];
+                                const confirmationMessage = await sock.sendMessage(m.key.remoteJid, { text: `You selected: *${selectedMovie.title}*\n\n*Movie link:* ${selectedMovie.link}\n\n*To get the direct download link, reply with "1" to this message.*` }, { quoted: m });
+                                const downloadLinkHandler = async (replyMsg) => {
+                                    if (replyMsg.message?.extendedTextMessage?.contextInfo?.stanzaId === confirmationMessage.key.id) {
+                                        const replyText = replyMsg.message?.conversation || replyMsg.message?.extendedTextMessage?.text;
+                                        if (replyText.trim() === '1') {
+                                            await getDirectDL(sock, m, selectedMovie.link, selectedMovie.title);
+                                            await sock.sendMessage(m.key.remoteJid, { react: { text: "🎉", key: m.key } });
+                                            sock.ev.off('messages.upsert', downloadLinkHandler);
+                                            return;
+                                        } else {
+                                            await sock.sendMessage(m.key.remoteJid, { text: 'Invalid response. Please reply with "1" to get the direct download link.' }, { quoted: m });
+                                        }
+                                    }
+                                };
 
-                const selectedMovieIndex = await getUserResponse(m, sock, sentMessage, 1, 10);
-                const selectedMovie = top10Movies[selectedMovieIndex - 1];
+                                sock.ev.on('messages.upsert', async ({ messages }) => {
+                                    for (let msg of messages) {
+                                        await downloadLinkHandler(msg);
+                                    }
+                                });
+                            } else {
+                                await sock.sendMessage(m.key.remoteJid, { text: 'Invalid selection. Please reply with a valid movie number. ❌' }, { quoted: m });
+                            }
+                        }
+                    };
 
-                await sendWithReaction(sock, m.key.remoteJid, '🍿', `You selected: *${selectedMovie.title}*\n Movie Link: *${selectedMovie.link}*`, m);
-                const movieDetails = await SinhalaSub.movie(selectedMovie.link);
-                if (!movieDetails.status) {
-                    throw new Error("Error fetching movie details. 😕");
-                }
-
-                const downloadChoices = movieDetails.result.dl_links.map((link, index) => `*${index + 1}*. ${link.quality} (${link.size})`).join("\n");
-                const sentDownloadMessage = await sendWithReaction(sock, m.key.remoteJid, '⬇️',
-                    `Download Options for *${movieDetails.result.title}*:\n\n${downloadChoices}\n\nPlease select the download option number.`, m);
-
-                const selectedDownloadIndex = await getUserResponse(m, sock, sentDownloadMessage, 1, movieDetails.result.dl_links.length);
-                const selectedDownload = movieDetails.result.dl_links[selectedDownloadIndex - 1];
-
-                // Get direct download link and check size before downloading
-                const response = await axios.head(selectedDownload.link);
-                const directDownloadLink = response.request.res.responseUrl;
-                const fileSizeBytes = parseInt(response.headers['content-length'], 10);
-                const maxFileSizeMB = 1800;
-
-                if (fileSizeBytes / (1024 * 1024) > maxFileSizeMB) {
-                    await sendWithReaction(sock, m.key.remoteJid, '🚫', `File size (${formatBytes(fileSizeBytes)}) exceeds limit of ${maxFileSizeMB} MB.`, m);
-                    return;
-                }
-
-                const downloadConfirmationMessage = await sendWithReaction(sock, m.key.remoteJid, '❓',
-                    `You chose: *${selectedDownload.quality}* for *${movieDetails.result.title}*.\n\nMovie Link: ${movieDetails.result.link} Do you want to download?\n1. Yes\n2. No`, m);
-
-                const downloadChoice = await getUserResponse(m, sock, downloadConfirmationMessage, 1, 2);
-
-                if (downloadChoice === 1) {
-                    await sendWithReaction(sock, m.key.remoteJid, '📥', `Downloading *${selectedDownload.quality}* of *${movieDetails.result.title}*\n\nThis might take a while...`, m);
-
-                    const downloadFolder = path.join(__dirname, 'Downloads');
-                    if (!fs.existsSync(downloadFolder)) {
-                        fs.mkdirSync(downloadFolder, { recursive: true }); // Create if it doesn't exist
-                    }
-
-                    const fileName = `${movieDetails.result.title.replace(/[^a-zA-Z0-9\s]/g, '')} - ${selectedDownload.quality}.mp4`;
-                    const filePath = path.join(downloadFolder, fileName);
-
-                    const writer = fs.createWriteStream(filePath);
-                    const response = await axios({
-                        url: directDownloadLink,
-                        method: 'GET',
-                        responseType: 'stream'
+                    sock.ev.on('messages.upsert', async ({ messages }) => {
+                        for (let msg of messages) {
+                            await replyHandler(msg);
+                        }
                     });
-
-                    response.data.pipe(writer);
-
-                    new Promise((resolve, reject) => {
-                        writer.on('finish', () => {
-                            sendWithReaction(sock, m.key.remoteJid, '✅', `Downloaded *${movieDetails.result.title}* successfully!`, m);
-                            resolve();
-                        });
-                        writer.on('error', reject);
-                    });
-
-                    return await new Promise((resolve, reject) => {
-                        writer.on('finish', async () => {
-                            await sock.sendMessage(m.key.remoteJid, {
-                                document: { url: filePath },
-                                mimetype: 'video/mp4',
-                                fileName: fileName,
-                                caption: `Here's your movie: *${movieDetails.result.title}* (*${formatBytes(fileSizeBytes)}*)`
-                            });
-                            fs.unlinkSync(filePath); // Delete the file after sending
-                            resolve();
-                        })
-                    })
-
                 } else {
-                    await sendWithReaction(sock, m.key.remoteJid, '🚫', "Download cancelled.", m);
+                    await sock.sendMessage(m.key.remoteJid, { text: 'No movies found for the given keyword. ❌' }, { quoted: m });
+                    await sock.sendMessage(m.key.remoteJid, { react: { text: "❓", key: m.key } });
                 }
             } catch (error) {
-                console.error("Error:", error.message);
-                await sendWithReaction(sock, m.key.remoteJid, '❌', `Error: ${error.message}`, m);
+                console.error('Error during movie search:', error);
+                await sock.sendMessage(m.key.remoteJid, { text: 'An error occurred while searching for movies. ❗' }, { quoted: m });
             }
         }
     });
 };
 
-// Helper function to get movie list (extracted for better organization)
-async function getMovieList(filterType, filterValue, query) {
-    if (filterType === 'year') {
-        return SinhalaSub.get_list.by_year(filterValue, 1);
-    } else if (filterType) {
-        const filterMethod = SinhalaSub.get_list.by_genre[filterValue] || SinhalaSub.get_list.by_language[filterValue]; // Fixed typo here
-        if (!filterMethod) {
-            throw new Error(`Invalid ${filterType}.`);
+async function getDirectDL(sock, m, link, title) {
+    try {
+        await sock.sendMessage(m.key.remoteJid, { react: { text: "🔍", key: m.key } });
+
+        const result = await hacxkMoviedl(link);
+
+        if (result && result.status) {
+            const movieDetails = result.result;
+            let message = `🎬 *Title:* ${title}\n⏱️ *Duration:* ${movieDetails.duration}\n🖼️ *Image:* ${link}\n💾 *Sources:* \n`;
+
+            for (const [index, source] of result.result.sources.entries()) {
+                const size = await getFileSize(source.downloadLink);
+                const formattedSize = formatFileSize(size);
+                message += `${index + 1}. 🗃️ ${source.quality || 'Unknown'} - [⬇️ Download](${source.downloadLink}) - 📦 Size: ${formattedSize}\n`;
+            }
+
+            await sock.sendMessage(m.key.remoteJid, { text: message + '*YOU CAN DOWNLOAD 240P BY SENDING **|down240** REPLY TO THIS MESSAGE !Info: Only Download If You Have Quota*' }, { quoted: m });
+            await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
+            return;
+        } else {
+            await sock.sendMessage(m.key.remoteJid, { text: '❌ Failed to get the direct download link.' }, { quoted: m });
         }
-        return filterMethod(1);
-    } else {
-        return SinhalaSub.get_list.by_search(query);
+    } catch (error) {
+        console.error('Error fetching direct download link:', error);
+        await sock.sendMessage(m.key.remoteJid, { text: '❗ An error occurred while fetching the direct download link.' }, { quoted: m });
     }
 }
 
+async function getDirectDL2(sock, m, link) {
+    try {
+        await sock.sendMessage(m.key.remoteJid, { react: { text: "🔍", key: m.key } });
 
-// Helper function to get user response
-async function getUserResponse(m, sock, sentMessage, min, max) {
-    return new Promise((resolve, reject) => {
-        const replyHandler = async (msg) => {
-            if (msg.message?.extendedTextMessage?.contextInfo?.stanzaId === sentMessage.key.id) {
-                const replyText = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
-                const selectedOption = parseInt(replyText);
-                if (selectedOption >= min && selectedOption <= max) {
-                    resolve(selectedOption);
-                } else {
-                    await sock.sendMessage(m.key.remoteJid, { text: `Invalid option. Please select a number between ${min} and ${max}.` }, { quoted: msg });
-                }
+        const result = await hacxkMoviedl(link);
+
+        if (result && result.status) {
+            const movieDetails = result.result;
+            let message = `🎬 *Title:* ${movieDetails.title}\n⏱️ *Duration:* ${movieDetails.duration}\n🖼️ *Image:* ${link}\n💾 *Sources:* \n`;
+
+            for (const [index, source] of result.result.sources.entries()) {
+                const size = await getFileSize(source.downloadLink);
+                const formattedSize = formatFileSize(size);
+                message += `${index + 1}. 🗃️ ${source.quality || 'Unknown'} - [⬇️ Download](${source.downloadLink}) - 📦 Size: ${formattedSize}\n`;
             }
-        };
 
-        sock.ev.on('messages.upsert', async ({ messages }) => {
-            for (let msg of messages) {
-                await replyHandler(msg);
+            await sock.sendMessage(m.key.remoteJid, { text: message + '*YOU CAN DOWNLOAD 240P BY SENDING **|down240** REPLY TO THIS MESSAGE !Info: Only Download If You Have Quota*' }, { quoted: m });
+            await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
+            return;
+        } else {
+            await sock.sendMessage(m.key.remoteJid, { text: '❌ Failed to get the direct download link.' }, { quoted: m });
+        }
+    } catch (error) {
+        console.error('Error fetching direct download link:', error);
+        await sock.sendMessage(m.key.remoteJid, { text: '❗ An error occurred while fetching the direct download link.' }, { quoted: m });
+    }
+}
+
+async function getFileSize(url) {
+    return new Promise((resolve, reject) => {
+        request.head(url, (err, res, body) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(parseInt(res.headers['content-length'], 10));
             }
         });
     });
 }
 
-// Helper function to format bytes to human-readable string
-function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+function formatFileSize(size) {
+    const units = ['B', 'KB', 'MB', 'GB'];
+    let unitIndex = 0;
+    while (size >= 1024 && unitIndex < units.length - 1) {
+        size /= 1024;
+        unitIndex++;
+    }
+    return `${size.toFixed(2)} ${units[unitIndex]}`;
 }
 
-// Helper function to send a message with a reaction and WhatsApp font hacks
-async function sendWithReaction(sock, remoteJid, reaction, text, m) {
-    const formattedText = text
-        .replace(/\*(.+?)\*/g, "*$1*")   // Bold
-        .replace(/_(.+?)_/g, "_$1_")    // Italics
-        .replace(/~(.+?)~/g, "~$1~");  // Strikethrough
-
-    await sock.sendMessage(remoteJid, { react: { text: reaction, key: m.key } });
-    return sock.sendMessage(remoteJid, { text: formattedText }, { quoted: m });
+function isTamilYogiLink(url) {
+    const regex = /^https:\/\/(www\.)?tamilyogi\.[a-z]+\/.+$/;
+    return regex.test(url);
 }

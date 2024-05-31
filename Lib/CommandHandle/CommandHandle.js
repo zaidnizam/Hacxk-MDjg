@@ -4,105 +4,117 @@ require('esm')(module);
 require('../../Config');
 
 const commands = [];
-let commandPrefix = global.botSettings.botPrefix[0];
+const commandPrefix = global.botSettings.botPrefix[0];
 
+// Command Decorator (Unchanged)
 function Command({ cmd, desc, react, type, handler }) {
-    commands.push({ cmd, desc, react, type, handler });
+    const cmdArray = Array.isArray(cmd) ? cmd : [cmd];
+    commands.push({ cmd: cmdArray, desc, react, type, handler });
 }
 
+// Enhanced Handle Command Function
 async function handleCommand(m, sock, delay) {
     try {
-        const textMessage = m.message?.conversation.toLowerCase() ||
-            m.message?.extendedTextMessage?.text.toLowerCase() || "";
-        const OriginalText = m.message?.conversation || m.message?.extendedTextMessage?.text || "";
+        const textMessage = (m.message?.conversation || m.message?.extendedTextMessage?.text || "").toLowerCase();
 
-        const partialCommand = textMessage.split(" ")[0];
+        // Extract Potential Command and Argument from Input
+        let args = textMessage.split(" ");
+        let potentialCommand = args[0].replace(commandPrefix, '');
 
-        if (partialCommand.startsWith(commandPrefix)) {
-            const matchedCommand = commands.find(command => {
-                // Ensure command.cmd is an array before using .some()
-                const cmdArray = Array.isArray(command.cmd) ? command.cmd : [command.cmd];
-        
-                return cmdArray.some(cmd => partialCommand === commandPrefix + cmd);
-            });  
-
+        // Check if it's in the format ".command -h"
+        if (args.length === 2 && args[1] === "-h") {
+            const matchedCommand = commands.find(command => command.cmd.includes(potentialCommand));
             if (matchedCommand) {
-                await sock.presenceSubscribe(m.key.remoteJid);
-                await delay(250);
-                await sock.readMessages([m.key]);
-                if (matchedCommand.react) {
-                    await sock.sendMessage(m.key.remoteJid, { react: { text: matchedCommand.react, key: m.key } });
-                }
-                await sock.sendPresenceUpdate('composing', m.key.remoteJid);
-                await delay(750);
-                await sock.sendPresenceUpdate('paused', m.key.remoteJid);
-                await matchedCommand.handler(m, sock, commands);
+                await sock.sendMessage(m.key.remoteJid, {
+                    text: `Command: ${commandPrefix}${potentialCommand}\nDescription: ${matchedCommand.desc}`
+                }, { quoted: m });
+                return
             } else {
-                // Command not found, provide suggestions
-                const similarCommands = commands.filter(command => {
-                    const cmdArray = Array.isArray(command.cmd) ? command.cmd : [command.cmd];
-                    return cmdArray.some(cmd => cmd.startsWith(partialCommand.slice(commandPrefix.length)));
-                });
+                await sock.sendMessage(m.key.remoteJid, { text: "Command not found." }, { quoted: m });
+            }
+        } else {
+            // If not in the specific format, proceed with normal command handling
 
-                if (similarCommands.length > 0) {
-                    const suggestions = similarCommands.map(cmd => commandPrefix + cmd.cmd[0]).join(", ");
-                    await sock.sendMessage(m.key.remoteJid, { react: { text: '🧐', key: m.key } })
-                    await sock.sendMessage(m.key.remoteJid, {
-                        text: `Command not found.🧐 Did you mean: *${suggestions}*?`
-                    }, { quoted: m });
+            const partialCommand = textMessage.split(" ")[0]; 
+
+            if (partialCommand.startsWith(commandPrefix)) {
+                // Find the matched command
+                const matchedCommand = commands.find(command =>
+                    command.cmd.some(cmd => partialCommand === commandPrefix + cmd)
+                );
+
+                if (matchedCommand) {
+                    // Acknowledge, send typing indicators, and execute
+                    await sock.presenceSubscribe(m.key.remoteJid);
+                    await delay(250);
+                    await sock.readMessages([m.key]);
+                    if (matchedCommand.react) {
+                        await sock.sendMessage(m.key.remoteJid, { react: { text: matchedCommand.react, key: m.key } });
+                    }
+                    await sock.sendPresenceUpdate('composing', m.key.remoteJid);
+                    await delay(750);
+                    await sock.sendPresenceUpdate('paused', m.key.remoteJid);
+                    await matchedCommand.handler(m, sock, commands);
+                } else {
+                    // Handle similar command suggestions
+                    const similarCommands = commands.filter(command =>
+                        command.cmd.some(cmd => cmd.startsWith(partialCommand.slice(commandPrefix.length)))
+                    );
+                    if (similarCommands.length > 0) {
+                        const suggestions = similarCommands.map(cmd => commandPrefix + cmd.cmd[0]).join(", ");
+                        await sock.sendMessage(m.key.remoteJid, { react: { text: '🧐', key: m.key } });
+                        await sock.sendMessage(m.key.remoteJid, {
+                            text: `Command not found.🧐 Did you mean: *${suggestions}*?`
+                        }, { quoted: m });
+                    }
                 }
             }
         }
     } catch (error) {
-        // 1. Log the Error for Debugging
-        console.error("Error handling command:", error); // Detailed error for your reference
+        // Enhanced Error Handling
+        console.error("Error handling command:", error);
 
-        // 2. Handle Specific Error Types
-        if (error.name === 'BaileysError') {  // Example Baileys library specific error
-            // Handle Baileys-related errors (e.g., network issues)
+        // Error-specific handling (examples)
+        if (error.name === 'BaileysError') {
             console.error("BaileysError:", error.message);
-            await sock.sendMessage(m.key.remoteJid, { 
-                text: "An error occurred while processing your request. Please try again later." 
-            }, { quoted: m });
-        } else if (error instanceof TypeError) { // Check if it's a type error (e.g., incorrect argument type)
+            // ... (handle Baileys errors, e.g., try to reconnect)
+        } else if (error instanceof TypeError) {
             console.error("TypeError:", error.message);
-            await sock.sendMessage(m.key.remoteJid, { 
-                text: "Invalid command usage. Please check the command format." 
-            }, { quoted: m });
+            // ... (handle type errors, e.g., invalid argument types)
         } else {
-            // 3. General Error Handling
             console.error("General Error:", error.message);
-            await sock.sendMessage(m.key.remoteJid, { 
-                text: "An unexpected error occurred. Please contact the bot owner." 
-            }, { quoted: m });
+            // ... (handle other errors, e.g., log to a file)
         }
 
-        // 4. Optional: Report Error to Bot Owner 
-        // You could send the error details to your own WhatsApp number or a logging service
+        // Notify the user
+        await sock.sendMessage(m.key.remoteJid, {
+            text: "An error occurred while processing your command."
+        }, { quoted: m });
     }
 }
 
-// Function to load all commands from the Plugin folder
+
+// Load Commands from Folder (Improved)
 async function loadCommandsFromFolder(folderPath) {
-        const commandFiles = fs.readdirSync(folderPath).filter(file => file.endsWith('.js'));
-        let loadedCount = 0;
-        const totalFiles = commandFiles.length;
-        for (const file of commandFiles) {
-            const filePath = path.join(folderPath, file);
-            const commandModule = require(filePath); // Use require synchronously
-            if (typeof commandModule === 'function') {
-                commandModule(Command);
-                loadedCount++;
-                const percentage = ((loadedCount / totalFiles) * 100).toFixed(0);
-                // ANSI escape codes for green color and bold style
-                const greenBold = '\x1b[32;1m';
-                // Reset ANSI escape code
-                const reset = '\x1b[0m';
-                // Emoji
-                const emoji = '📂'; // You can choose any emoji you like
-                console.log(`${greenBold}${emoji} Loaded percentage: ${percentage}% (${loadedCount}/${totalFiles}) ${reset}`);
-            }
+    const commandFiles = fs.readdirSync(folderPath).filter(file => file.endsWith('.js'));
+    let loadedCount = 0;
+    const totalFiles = commandFiles.length;
+
+    for (const file of commandFiles) {
+        const filePath = path.join(folderPath, file);
+        const commandModule = require(filePath);
+
+        if (typeof commandModule === 'function') {
+            commandModule(Command);
+            loadedCount++;
+
+            // Progress Reporting
+            const percentage = ((loadedCount / totalFiles) * 100).toFixed(0);
+            console.log(`\x1b[32;1m📂 Loaded percentage: ${percentage}% (${loadedCount}/${totalFiles})\x1b[0m`); // Green and bold
         }
+    }
 }
 
+
 module.exports = { Command, handleCommand, loadCommandsFromFolder, commands };
+
