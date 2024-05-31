@@ -20,7 +20,7 @@ module.exports = (Command) => {
         cmd: ['yt', 'ytmp4', 'video', 'ytmp3', 'ytaudio'],
         desc: 'Download YouTube Video',
         react: "▶️",
-        type: 'YT DOWNLOADER COMMANDS',
+        type: 'DOWNLOAD COMMANDS',
         handler: async (m, sock) => {
             try {
                 const OriginalText = m.message?.conversation || m.message?.extendedTextMessage?.text || "";

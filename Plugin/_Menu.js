@@ -13,6 +13,7 @@ module.exports = (Command) => {
             const BOT_NAME = global.botSettings.botName[0];
             const ownerNumbers = global.botSettings.ownerNumbers[0];
             const ownerName = global.botSettings.ownerName[0];
+            const version = global.botSettings.botVersion[0];
             const prefix = global.botSettings.botPrefix[0];
             const requestedUserName = m.pushName || "User";
             const requestedUserNumber = m.key.remoteJid.endsWith('@g.us') ? m.key.participant : m.key.remoteJid;
@@ -31,6 +32,12 @@ module.exports = (Command) => {
 
             const date = now.toLocaleDateString();
             const time = now.toLocaleTimeString();
+            const uptime = formatUptime(process.uptime());
+
+            // Measure ping
+            const pingStart = Date.now();
+            await sock.sendPresenceUpdate('composing', m.key.remoteJid);
+            const ping = Date.now() - pingStart;
 
             // Categorize commands
             const commandTypes = {};
@@ -43,9 +50,19 @@ module.exports = (Command) => {
 
             // Build beautiful text-based menu
             let menuText = `
-╭━━━━━[ *${BOT_NAME}* ]━╮
-┃ ✨ Hello, *${requestedUserName}*! ✨
-┃ 👋 ${greeting}!
+┏━━━━━◥◣◆◢◤━━━━━━━┓
+.  🌺 ${BOT_NAME} 🌺
+┗━━━━━◢◤◆◥◣━━━━━━━┛
+
+*✧ 𝒩𝒶𝓂𝑒:* ${BOT_NAME}
+*✧ 𝒱𝑒𝓇𝓈𝒾𝑜𝓃:* ${version}
+*✧ 𝒰𝓅𝓉𝒾𝓂𝑒:* ${uptime}
+*✧ 𝒫𝓇𝑒𝒻𝒾𝓍:* ${prefix}
+*✧ 𝒫𝒾𝓃𝑔:* ${ping}
+*✧ 𝒪𝓌𝓃𝑒𝓇:* ${ownerName}
+
+hey are you searching how to get me feel free to visit here:
+https://github.com/hacxk/Hacxk-MD
 
 *Need help? Here's what I can do:*
 `;
@@ -62,11 +79,11 @@ module.exports = (Command) => {
 
             menuText += `
 \nTo get more information about a command, type:
-\`${prefix}help <command_name>\`
+\`${prefix}command -h\`
 
 For any questions or issues, feel free to contact the owner:
-${ownerName} - ${ownerNumbers} 
-╰────────────────
+${ownerName} - ${ownerNumbers}
+┗━━━━━◢◤◆◥◣━━━━━━┛
 `;
 
             // Resolve the directory path
@@ -93,12 +110,20 @@ ${ownerName} - ${ownerNumbers}
             // Read the image file into a buffer
             const imageBuffer = fs.readFileSync(imagePath);
 
-
             // Send image with text caption
             await sock.sendMessage(m.key.remoteJid, { image: imageBuffer, caption: menuText }, { quoted: m });
         }
     });
 };
+
+// Function to format uptime
+function formatUptime(seconds) {
+    const pad = (s) => (s < 10 ? '0' : '') + s;
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${pad(hrs)}:${pad(mins)}:${pad(secs)}`;
+}
 
 // Function to shuffle an array randomly
 function shuffleArray(array) {

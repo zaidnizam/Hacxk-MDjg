@@ -7,7 +7,7 @@ module.exports = (Command) => {
     cmd: ['spotify', 'song', 'music', 'play'],
     desc: 'Download Spotify Song With Link/Keyword',
     react: "🎼",
-    type: 'SPOTIFY DOWNLOADER COMMANDS',
+    type: 'DOWNLOAD COMMANDS',
     handler: async (m, sock) => {
       const OriginalText = m.message?.conversation || m.message?.extendedTextMessage?.text || "";
       const [command, ...args] = OriginalText.split(' ');

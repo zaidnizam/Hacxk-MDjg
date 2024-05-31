@@ -3,7 +3,7 @@ module.exports = (Command) => {
         cmd: ['animalfact'],
         desc: 'Get a random fact about an animal',
         react: "🐾",
-        type: 'FACT COMMANDS',
+        type: 'FUN COMMANDS',
         handler: async (m, sock) => {
             try {
                 const response = await fetch('https://axoltlapi.herokuapp.com/');

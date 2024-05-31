@@ -3,7 +3,7 @@ module.exports = (Command) => {
         cmd: ["promote", "admin"],
         desc: "Make a member group admin (owner/bot only)",
         react: "✅",
-        type: "GROUP COMMANDS & OWNER COMMANDS",
+        type: "GROUP COMMANDS",
         handler: async (m, sock) => {
             const { remoteJid, participant, quoted } = m.key;
 

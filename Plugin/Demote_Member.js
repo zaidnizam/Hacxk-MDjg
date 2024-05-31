@@ -3,7 +3,7 @@ module.exports = (Command) => {
         cmd: ["demote", "removeadmin"],
         desc: "Remove a member from group admin (owner/bot only)",
         react: "✅",
-        type: "GROUP COMMANDS & OWNER COMMANDS",
+        type: "GROUP COMMANDS",
         handler: async (m, sock) => {
             const { remoteJid, participant, quoted } = m.key;
 

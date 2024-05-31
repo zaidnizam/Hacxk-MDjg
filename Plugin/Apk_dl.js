@@ -6,7 +6,7 @@ module.exports = (Command) => {
         cmd: ['apk', 'app', 'software'],
         desc: 'Download Apk (apps, games)',
         react: "🗃️",
-        type: 'APK DOWNLOAD COMMANDS',
+        type: 'DOWNLOAD COMMANDS',
         handler: async (m, sock) => {
             const OriginalText = m.message?.conversation || m.message?.extendedTextMessage?.text || "";
             const [command, ...args] = OriginalText.split(' ');
