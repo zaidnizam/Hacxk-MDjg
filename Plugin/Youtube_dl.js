@@ -91,7 +91,7 @@ module.exports = (Command) => {
                         const replyText = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
                         if (replyText === '1') {
                             await sock.sendMessage(m.key.remoteJid, { text: 'Downloading video...' }, { quoted: msg });
-                            await downyt720(sock, m, videoID);
+                            await downyt720(sock, m, videoID, video_url);
                         } else if (replyText === '2') {
                             await sock.sendMessage(m.key.remoteJid, { text: 'Downloading audio...' }, { quoted: msg });
                             downytaudio(sock, m, videoID)
@@ -122,8 +122,9 @@ function sanitizeFilename(filename) {
     return filename.replace(invalidChars, '_');
   }
 
-async function downyt720(sock, message, videoid) {
+async function downyt720(sock, message, videoid, video_url) {
     try {
+
       const downloadFolderPath = path.join(__dirname, 'downloads');
   
       // Create the "downloads" folder if it doesn't exist

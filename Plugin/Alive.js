@@ -9,7 +9,7 @@ module.exports = (Command) => {
         type: 'BOT COMMANDS',
         handler: async (m, sock) => {
             const startTime = performance.now();
-
+          //  await send.reply('Helloaaaaaadsaa', m);
             const currentTime = new Date().toLocaleString();
             const uptime = formatUptime(process.uptime());
             

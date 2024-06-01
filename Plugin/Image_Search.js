@@ -1,5 +1,7 @@
 const { delay } = require('@whiskeysockets/baileys');
-const gis = require('g-i-s');
+const axios = require('axios');
+const { promisify } = require('util');
+const gis = promisify(require('g-i-s'));
 
 module.exports = (Command) => {
     Command({
@@ -17,29 +19,44 @@ module.exports = (Command) => {
                 return;
             }
 
-            gis(query, async (error, results) => {
-                if (error) {
-                    console.error(error);
-                    await sock.sendMessage(m.key.remoteJid, { react: { text: "❌", key: m.key } });
-                    await sock.sendMessage(m.key.remoteJid, { text: 'Error searching for images.' }, { quoted: m });
-                } else {
-                    const imageCount = Math.min(results.length, 5); // Limit to 5 images or fewer
-                    // Searching reaction
-                    await sock.sendMessage(m.key.remoteJid, { react: { text: "🔎", key: m.key } });
-                    if (imageCount > 0) {
-                        for (let i = 0; i < imageCount; i++) {
-                            const imageUrl = results[i].url;
-                            await sock.sendMessage(m.key.remoteJid, { image: { url: imageUrl } }, { quoted: m });
-                            await delay(500)
-                        }
-                         // Searching reaction
-                    await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
+            try {
+                const results = await gis(query.toLowerCase());
+                const imageCount = Math.min(results.length, 5); // Limit to 5 images or fewer
+
+                // Searching reaction
+                await sock.sendMessage(m.key.remoteJid, { react: { text: "🔎", key: m.key } });
+
+                for (let i = 0; i < imageCount; i++) {
+                    const imageUrl = results[i].url;
+                    const { headers } = await axios.head(imageUrl);
+                    const width = headers['content-length'];
+                    const height = headers['content-length'];
+                    
+                    let widthToSend, heightToSend;
+                    if (width > height) {
+                        widthToSend = 3840; // Landscape resolution width
+                        heightToSend = 2160; // Landscape resolution height
                     } else {
-                        await sock.sendMessage(m.key.remoteJid, { react: { text: "🤷‍♂️", key: m.key } });
-                        await sock.sendMessage(m.key.remoteJid, { text: 'No images found.' }, { quoted: m });
+                        widthToSend = 2160; // Portrait resolution width
+                        heightToSend = 3840; // Portrait resolution height
                     }
+
+                    await sock.sendMessage(m.key.remoteJid, { 
+                        image: { url: imageUrl, width, height }, 
+                        width: widthToSend, 
+                        height: heightToSend
+                    }, { quoted: m });
+                   await delay(500)
                 }
-            });
+
+                // Success reaction
+                await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
+            } catch (error) {
+                console.error(error);
+                // Error reaction
+                await sock.sendMessage(m.key.remoteJid, { react: { text: "❌", key: m.key } });
+                await sock.sendMessage(m.key.remoteJid, { text: 'Error searching for images.' }, { quoted: m });
+            }
         }
     });
 };
