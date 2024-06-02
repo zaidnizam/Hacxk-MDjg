@@ -127,6 +127,74 @@ Ensure you have configured your Whatsapp credentials in the configuration file b
 
 ---
 
+### USAGE OF CONFIG COMMAND
+
+## Description
+
+The bot configuration command 🛠️ allows authorized users to dynamically modify the bot's configuration settings. Users can update various settings defined in the `Config.js` file, including owner numbers, bot name, greetings, and more.
+
+### Usage
+
+To use the configuration command, send the following message to the bot:
+
+```
+.config <setting> <value>
+```
+
+Replace `<setting>` with the name of the setting you want to update and `<value>` with the new value for that setting.
+
+### Examples
+
+Here are some examples to help you get started:
+
+- Change the bot's prefix to `$`:
+  ```
+  .config botPrefix $
+  ```
+
+- Update the bot's name to "MyAwesomeBot":
+  ```
+  .config botName MyAwesomeBot
+  ```
+
+- Enable greetings for new members joining a group:
+  ```
+  .config greetings true
+  ```
+
+- Add a new owner number:
+  ```
+  .config ownerNumbers +1234567890
+  ```
+
+- Remove an owner number:
+  ```
+  .config ownerNumbers -1234567890
+  ```
+
+### Available Settings
+
+Here are the settings that can be modified using the configuration command:
+
+- **botPrefix**: Prefix for bot commands (e.g., `.`, `!`, `#`).
+- **botName**: Name of the bot.
+- **ownerNumbers**: Array of owner numbers who can modify the bot's configuration.
+- **greetings**: Boolean indicating whether greetings are enabled (`true` or `false`).
+- **botWorkMode**: Mode of bot operation (e.g., `Private`, `Public`).
+- **tempSession**: Boolean indicating whether temporary sessions are enabled (`true` or `false`).
+- **adultSearch**: Boolean indicating whether adult content search is enabled (`true` or `false`).
+- **directDlLimitinMB**: Maximum download size in MB.
+- **Checkers**: Boolean indicating whether various checkers are enabled.
+- **AntiLinkChecker**: Boolean indicating whether the anti-link checker is enabled (`true` or `false`).
+- **AntiBadWordChecker**: Boolean indicating whether the anti-bad word checker is enabled (`true` or `false`).
+- **RejectCall**: Boolean indicating whether calls from unauthorized numbers are rejected (`true` or `false`).
+
+### Notes
+
+- Ensure that you have the necessary permissions to modify the bot's configuration.
+- Incorrect usage of the command may result in errors. Follow the provided usage guidelines carefully.
+- After updating the configuration, the bot may need to restart to apply the changes.
+
 <details>
 <summary><strong>📇 Version History</strong></summary>
 <details>
