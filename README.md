@@ -138,7 +138,7 @@ The bot configuration command 🛠️ allows authorized users to dynamically mod
 To use the configuration command, send the following message to the bot:
 
 ```
-.config <setting> <value>
+.config <type> <setting> <value> // Type = add, remove, change, replace
 ```
 
 Replace `<setting>` with the name of the setting you want to update and `<value>` with the new value for that setting.
