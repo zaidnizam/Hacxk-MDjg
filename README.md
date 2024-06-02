@@ -147,29 +147,29 @@ Replace `<setting>` with the name of the setting you want to update and `<value>
 
 Here are some examples to help you get started:
 
-- Change the bot's prefix to `$`:
+- Get All Varible Name:
   ```
-  .config botPrefix $
+  .config
   ```
 
 - Update the bot's name to "MyAwesomeBot":
   ```
-  .config botName MyAwesomeBot
+  .config replace botName HACXK-MD
   ```
 
 - Enable greetings for new members joining a group:
   ```
-  .config greetings true
+  .config change greetings true
   ```
 
 - Add a new owner number:
   ```
-  .config ownerNumbers +1234567890
+  .config add ownerNumbers 1234567890
   ```
 
 - Remove an owner number:
   ```
-  .config ownerNumbers -1234567890
+  .config remove ownerNumbers 1234567890
   ```
 
 ### Available Settings
