@@ -1,10 +1,8 @@
-// Config.js
-
 // Define bot settings object
 global.botSettings = {};
 
 // Add owner settings
-global.botSettings.ownerNumbers = ['94771014973', '94754802771']; // Example: ['1234567', '453657767'] **PUT YOUR NAMER FIRST**
+global.botSettings.ownerNumbers = ['94771014973', '94754802771', '94773255188']; // Example: ['1234567', '453657767'] **PUT YOUR NAMER FIRST**
 global.botSettings.botNumber = [''] // Don't Need to input bot will update automatically
 global.botSettings.ownerName = ['Mr - Zaid']
 global.botSettings.botName = ['Hacxk - MD']
@@ -23,7 +21,7 @@ global.botSettings.Check = {};
 // --------- these work if checkers true
 global.botSettings.Check.Checkers = true
 global.botSettings.Check.AntiLinkChecker = true
-global.botSettings.Check.AntiBadWordChecker = true
+global.botSettings.Check.AntiBadWordChecker = false
 global.botSettings.Check.RejectCall = true
 
 // Define api object

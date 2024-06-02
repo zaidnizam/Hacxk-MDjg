@@ -1,4 +1,4 @@
-const { delay } = require("@whiskeysockets/baileys");
+const { delay, proto } = require("@whiskeysockets/baileys");
 
 async function messageSend(sock) {
     // Utility function to check if a string is an emoji
@@ -30,14 +30,16 @@ async function messageSend(sock) {
             await delay(500);
             await sock.sendMessage(m.key.remoteJid, { react: { text: react, key: m.key } });
         },
-        edit: async (send, editMsg, m) => {
+        edit: async (oldMsg, newMsg, m) => {
             if (!sock) {
                 throw new Error("No message or socket available");
             }
     
             await sock.sendPresenceUpdate('composing', m.key.remoteJid);
             await delay(250);
-            await sock.sendMessage(m.key.remoteJid, { edit: send, text: editMsg });
+            await sock.sendMessage(m.key.remoteJid, { edit: oldMsg.key,
+            text: newMsg,
+            type: "MESSAGE_EDIT"});
         }
     };
 }

@@ -3,6 +3,20 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
+
+function sanitizeFilename(filename) {
+    // Define a maximum length for the filename
+    const maxLength = 255;
+    // Remove or replace invalid characters
+    const sanitized = filename
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '_')  // replace non-alphanumeric characters with underscores
+      .replace(/_+/g, '_'); // replace multiple underscores with a single underscore
+    // Truncate the filename to the maximum length allowed by the file system
+    return sanitized.length > maxLength ? sanitized.substring(0, maxLength) : sanitized;
+  }
+
+
 module.exports = (Command) => {
     Command({
         cmd: ['tt', 'tiktok', 'tik'],
@@ -73,14 +87,17 @@ module.exports = (Command) => {
                         if (msg.message?.extendedTextMessage?.contextInfo?.stanzaId === sentMessage.key.id) {
                             const replyText = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
                             if (replyText === '1') {
+                                await sock.ev.off('messages.upsert', replyHandler);
                                 await sock.sendMessage(m.key.remoteJid, { text: 'Downloading video as HD...' }, { quoted: msg });
                                 const url = noWatermarkMp4;
                                 await downloadTiktok(sock, m, 'HD', url, title);
                             } else if (replyText === '2') {
+                                await sock.ev.off('messages.upsert', replyHandler);
                                 await sock.sendMessage(m.key.remoteJid, { text: 'Downloading Video as SD...' }, { quoted: msg });
                                 const url = watermarkMp4;
                                 await downloadTiktok(sock, m, 'SD', url, title);
                             } else if (replyText === '3') {
+                                await sock.ev.off('messages.upsert', replyHandler);
                                 await sock.sendMessage(m.key.remoteJid, { text: 'Downloading audio...' }, { quoted: msg });
                                 const url = musicInfo.music;
                                 await downloadTiktok(sock, m, 'MP3', url, title);
@@ -91,18 +108,15 @@ module.exports = (Command) => {
                     };
 
 
-                    sock.ev.on('messages.upsert', async ({ messages }) => {
-                        for (let msg of messages) {
-                            await replyHandler(msg);
-                        }
-                    });
+                    // Attach the event listener
+                    sock.ev.on('messages.upsert', replyHandler);
                 } else {
                     sock.sendMessage(m.key.remoteJid, { text: `Searching for keyword: ${input}` })
                     const ins = input.replace(/\s+/g, "%20");
                     const url = `https://api.junn4.my.id/search/tiktoksearch?query=${ins}`
 
                     const result = await axios.get(url); // Wait for the result of the GET request
-                
+
                     const { title, cover, origin_cover, no_watermark, watermark, music } = result.data.result;
 
 
@@ -110,7 +124,7 @@ module.exports = (Command) => {
 
 
                     const message = `
-📹 *HACXK MD TIKTOK DOWNLOADER* 📹
+📹 *HACXK MDs TIKTOK DOWNLOADER* 📹
        
 *Title:* ${title}
        
@@ -129,12 +143,13 @@ module.exports = (Command) => {
 
                         let responseHandled = false;  // Flag to track if a valid response has been handled
 
-                        const replyHandler = async (msg) => {
+                        const replyHandler = async ({ messages }) => {
                             if (responseHandled) return;  // If a valid response has been handled, skip further processing
-
+                            const msg = messages[0];
                             if (msg.message?.extendedTextMessage?.contextInfo?.stanzaId === sentMessages.key.id) { // Check if sentMessages is defined
                                 const replyText = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
                                 if (replyText === '1') {
+                                    await sock.ev.off('messages.upsert', replyHandler);
                                     responseHandled = true;  // Set the flag
                                     sock.sendMessage(m.key.remoteJid, { text: 'Downloading video with watermark...' }, { quoted: msg });
                                     const url = no_watermark;
@@ -144,7 +159,7 @@ module.exports = (Command) => {
                                         fs.mkdirSync(saveDirectory);
                                     }
 
-                                    const formattedTitle = title.toLowerCase().replace(/ /g, '_') + '.mp4';
+                                    const formattedTitle = sanitizeFilename(title) + '.mp4' || 'undefined';
                                     const filePath = path.join(saveDirectory, formattedTitle);
 
                                     const response = await axios.get(url, { responseType: 'arraybuffer' });
@@ -165,6 +180,7 @@ module.exports = (Command) => {
                                     fs.unlinkSync(filePath);
                                     return;
                                 } else if (replyText === '2') {
+                                    await sock.ev.off('messages.upsert', replyHandler);
                                     responseHandled = true;  // Set the flag
                                     sock.sendMessage(m.key.remoteJid, { text: 'Downloading video with watermark...' }, { quoted: msg });
                                     const url = watermark;
@@ -174,7 +190,7 @@ module.exports = (Command) => {
                                         fs.mkdirSync(saveDirectory);
                                     }
 
-                                    const formattedTitle = title.toLowerCase().replace(/ /g, '_') + '.mp4';
+                                    const formattedTitle = sanitizeFilename(title) + '.mp4' || 'undefined';
                                     const filePath = path.join(saveDirectory, formattedTitle);
 
                                     const response = await axios.get(url, { responseType: 'arraybuffer' });
@@ -195,6 +211,7 @@ module.exports = (Command) => {
                                     fs.unlinkSync(filePath);
                                     return;
                                 } else if (replyText === '3') {
+                                    await sock.ev.off('messages.upsert', replyHandler);
                                     responseHandled = true;  // Set the flag
                                     sock.sendMessage(m.key.remoteJid, { text: 'Downloading audio...' }, { quoted: msg });
                                     const url = music;
@@ -204,7 +221,7 @@ module.exports = (Command) => {
                                         fs.mkdirSync(saveDirectory);
                                     }
 
-                                    const formattedTitle = title.toLowerCase().replace(/ /g, '_') + '.mp3';
+                                    const formattedTitle = sanitizeFilename(title) + '.mp4' || 'undefined';
                                     const filePath = path.join(saveDirectory, formattedTitle);
 
                                     const response = await axios.get(url, { responseType: 'arraybuffer' });
@@ -227,11 +244,9 @@ module.exports = (Command) => {
                             }
                         };
 
-                        sock.ev.on('messages.upsert', async ({ messages }) => {
-                            for (let msg of messages) {
-                                await replyHandler(msg);
-                            }
-                        });
+                      
+                    // Attach the event listener
+                    sock.ev.on('messages.upsert', replyHandler);
 
                     } catch (err) {
                         console.error('Error handling replies:', err);
@@ -247,16 +262,13 @@ module.exports = (Command) => {
     });
 };
 
-const sanitizeFilename = (filename) => {
-    return filename.replace(/[<>:"/\\|?*]+/g, '');
-};
 
 async function downloadTiktok(sock, m, option, url, stitle) {
     try {
         const response = await axios.get(url, { responseType: 'arraybuffer' });
         await sock.sendMessage(m.key.remoteJid, { react: { text: "⬇️", key: m.key } });
         // Generate filename based on video title
-        const title = sanitizeFilename(stitle.toLowerCase().replace(/ /g, '_'));
+        const title = sanitizeFilename(stitle) + '.mp4' || 'undefined';
         const extension = option === 'MP3' ? 'mp3' : 'mp4';
         const filename = `${title}.${extension}`;
 

@@ -1,8 +1,8 @@
 module.exports = (Command) => {
     Command({
-        cmd: ['mute'],
-        desc: 'Mute Group Chat IF BOT IS ADMIN',
-        react: "😶", 
+        cmd: ['unmute'],
+        desc: 'UnMute Group Chat IF BOT IS ADMIN',
+        react: "😀", 
         type: 'BOT COMMANDS',
         handler: async (m, sock) => {
         
@@ -21,7 +21,7 @@ module.exports = (Command) => {
             const allowedNumbers = global.botSettings.ownerNumbers.map(num => num + '@s.whatsapp.net');
             allowedNumbers.push(botNumber); 
             if (!allowedNumbers.includes(participant)) {
-                await sendWithReaction(sock, remoteJid, "🚫", "*Only the owner or bot can mute group chat.*", m);
+                await sendWithReaction(sock, remoteJid, "🚫", "*Only the owner or bot can unmute group chat.*", m);
                 return;
             }
 
@@ -30,15 +30,15 @@ module.exports = (Command) => {
             const botIsAdmin = groupMetadata.participants.some(p => p.id.includes(botNumber) && p.admin);
 
             if (!botIsAdmin) {
-                await sendWithReaction(sock, m.key.remoteJid, "🤖", "*I cannot mute chat because I am not an admin in this group.*", m);
+                await sendWithReaction(sock, m.key.remoteJid, "🤖", "*I cannot unmute chat because I am not an admin in this group.*", m);
                 return;
             }
             const groupInfo = await sock.groupMetadata(m.key.remoteJid)
-          if (!groupInfo.announce) {
-          await sock.groupSettingUpdate(m.key.remoteJid, "announcement");
+          if (groupInfo.announce) {
+          await sock.groupSettingUpdate(m.key.remoteJid, "not_announcement");
           return
           } else {
-            await msg.reply('Group Already Muted!', m)
+            await msg.reply('Group Already UnMuted!', m)
             return
           }
         }

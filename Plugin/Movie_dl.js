@@ -3,7 +3,7 @@ const request = require('request');
 
 module.exports = (Command) => {
     Command({
-        cmd: 'tamilyogi',
+        cmd: ['tamilyogi', 'film', 'movie'],
         desc: 'Get TamilYogi Movie Direct Download Link All Quality',
         react: "📽️",
         type: 'SEARCH COMMANDS',
@@ -38,45 +38,21 @@ module.exports = (Command) => {
                     const sentMessage = await sock.sendMessage(m.key.remoteJid, { text: message + '\n\nReply with the number of the movie you want to download. 🎬' }, { quoted: m });
                     await sock.sendMessage(m.key.remoteJid, { react: { text: "⌛", key: m.key } });
 
-                    const replyHandler = async (msg) => {
+                    const replyHandler = async ({ messages }) => {
+                        const msg = messages[0];
                         if (msg.message?.extendedTextMessage?.contextInfo?.stanzaId === sentMessage.key.id) {
                             const replyText = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
                             const movieIndex = parseInt(replyText, 10) - 1;
                             await sock.sendMessage(m.key.remoteJid, { react: { text: "🤔", key: m.key } });
-                            if (!isNaN(movieIndex) && movieIndex >= 0 && movieIndex < result.results.length) {
-                                await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
-                                const selectedMovie = result.results[movieIndex];
-                                const confirmationMessage = await sock.sendMessage(m.key.remoteJid, { text: `You selected: *${selectedMovie.title}*\n\n*Movie link:* ${selectedMovie.link}\n\n*To get the direct download link, reply with "1" to this message.*` }, { quoted: m });
-                                const downloadLinkHandler = async (replyMsg) => {
-                                    if (replyMsg.message?.extendedTextMessage?.contextInfo?.stanzaId === confirmationMessage.key.id) {
-                                        const replyText = replyMsg.message?.conversation || replyMsg.message?.extendedTextMessage?.text;
-                                        if (replyText.trim() === '1') {
-                                            await getDirectDL(sock, m, selectedMovie.link, selectedMovie.title);
-                                            await sock.sendMessage(m.key.remoteJid, { react: { text: "🎉", key: m.key } });
-                                            sock.ev.off('messages.upsert', downloadLinkHandler);
-                                            return;
-                                        } else {
-                                            await sock.sendMessage(m.key.remoteJid, { text: 'Invalid response. Please reply with "1" to get the direct download link.' }, { quoted: m });
-                                        }
-                                    }
-                                };
-
-                                sock.ev.on('messages.upsert', async ({ messages }) => {
-                                    for (let msg of messages) {
-                                        await downloadLinkHandler(msg);
-                                    }
-                                });
-                            } else {
-                                await sock.sendMessage(m.key.remoteJid, { text: 'Invalid selection. Please reply with a valid movie number. ❌' }, { quoted: m });
-                            }
+                            const res = await responed(movieIndex, result, sock, m);
+                            if (res.respone) {
+                                await sock.ev.off('messages.upsert', replyHandler);
+                            } 
                         }
                     };
 
-                    sock.ev.on('messages.upsert', async ({ messages }) => {
-                        for (let msg of messages) {
-                            await replyHandler(msg);
-                        }
-                    });
+                    sock.ev.on('messages.upsert', replyHandler);
+
                 } else {
                     await sock.sendMessage(m.key.remoteJid, { text: 'No movies found for the given keyword. ❌' }, { quoted: m });
                     await sock.sendMessage(m.key.remoteJid, { react: { text: "❓", key: m.key } });
@@ -88,6 +64,32 @@ module.exports = (Command) => {
         }
     });
 };
+
+async function responed(movieIndex, result, sock, m) {
+    if (!isNaN(movieIndex) && movieIndex >= 0 && movieIndex < result.results.length) {
+        await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
+        const selectedMovie = result.results[movieIndex];
+        const confirmationMessage = await sock.sendMessage(m.key.remoteJid, { text: `You selected: *${selectedMovie.title}*\n\n*Movie link:* ${selectedMovie.link}\n\n*To get the direct download link, reply with "1" to this message.*` }, { quoted: m });
+        const downloadLinkHandler = async ({ messages }) => {
+            const replyMsg = messages[0];
+            if (replyMsg.message?.extendedTextMessage?.contextInfo?.stanzaId === confirmationMessage.key.id) {
+                const replyText = replyMsg.message?.conversation || replyMsg.message?.extendedTextMessage?.text;
+                if (replyText.trim() === '1') {
+                    await getDirectDL(sock, m, selectedMovie.link, selectedMovie.title);
+                    await sock.sendMessage(m.key.remoteJid, { react: { text: "🎉", key: m.key } });
+                    sock.ev.off('messages.upsert', downloadLinkHandler);
+                    return;
+                } else {
+                    await sock.sendMessage(m.key.remoteJid, { text: 'Invalid response. Please reply with "1" to get the direct download link.' }, { quoted: m });
+                }
+            }
+        };
+        sock.ev.on('messages.upsert', downloadLinkHandler);
+        return res = { respone: true };
+    } else {
+        await sock.sendMessage(m.key.remoteJid, { text: 'Invalid selection. Please reply with a valid movie number. ❌' }, { quoted: m });
+    }
+}
 
 async function getDirectDL(sock, m, link, title) {
     try {

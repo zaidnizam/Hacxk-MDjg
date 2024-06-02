@@ -6,7 +6,7 @@ module.exports = (Checker) => {
         name: 'AntiBadWordChecker',
         des: '🚫 AntiBadWordChecker: Check and Delete Unsafe Words',
         type: 'Group',
-        isEnabled: true,
+        isEnabled: false,
         handler: async (sock, m) => {
             try {
                 const { remoteJid, participant } = m.key;

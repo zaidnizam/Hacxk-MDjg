@@ -16,6 +16,7 @@ module.exports = (Command) => {
             const { remoteJid } = m.key;
             const args = m.message?.conversation.split(' ').slice(1).join(' ') || m.message?.extendedTextMessage?.text.split(' ').slice(1).join(' ');
             const sizeLimit = global.botSettings.directDlLimitinMB[0];
+       
 
             if (!args) {
                 await msg.reply('Please provide a direct download link to download the content. Example: `directdl [Direct Content Link]`', m);
@@ -47,6 +48,9 @@ module.exports = (Command) => {
 
                 // Start downloading the file
                 const downloadPath = path.resolve(__dirname, 'downloads', path.basename(args));
+                if (!fs.existsSync(downloadPath)) {
+                    fs.mkdirSync(downloadPath);
+                  }
                 const writer = fs.createWriteStream(downloadPath);
                 const response = await axios({
                     method: 'get',
@@ -84,7 +88,7 @@ module.exports = (Command) => {
 📄 *Type:* ${response.headers['content-type']}
 ⬇️ *Downloaded Percentage:* ${percentage}%
                         `;
-                        await msg.reply(betmsg, m);
+                        await msg.edit(sntmsg, betmsg, m);
                     }
                 }, 7500);
 
@@ -118,8 +122,9 @@ module.exports = (Command) => {
                 });
 
             } catch (error) {
-                await msg.reply('Failed to fetch the file. Please ensure the link is correct and try again.', m);
+                await msg.reply('Failed to fetch the file. Please ensure the link is correct and try again.' + error, m);
                 await msg.react('🚫', m);
+                console.log(error)
 
                 // Set downloading flag to false
                 isDownloading = false;

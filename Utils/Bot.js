@@ -10,6 +10,7 @@ require('esm')(module);
 require('../Config');
 // Require the utils file to ensure the reply function is globally available
 const { messageSend } = require('../Lib/MessageSendFunction/MessageSendFunction');
+const { greetings } = require('../Plugin/Group/Greeting');
 const { SessionHandle } = require('../Lib/SessionHandle/SessionHandle');
 const { autoCleanUp } = require('../Lib/AutoClean/AutoCleaner');
 const { handleCommand, loadCommandsFromFolder } = require('../Lib/CommandHandle/CommandHandle');
@@ -187,6 +188,13 @@ const startHacxkMd = async () => {
       });
 
       sock.ev.on('creds.update', saveCreds);
+
+          // Listen for group participants update
+    sock.ev.on('group-participants.update', async (update) => {
+        if (global.botSettings.greetings === true) {
+           await greetings(sock, update)
+        }
+    });
 
       sock.ev.on('messages.upsert', async ({ messages, type }) => {
           try {

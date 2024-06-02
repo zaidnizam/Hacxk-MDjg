@@ -47,8 +47,6 @@ ${appOptions.map((option, index) => `*${index + 1}.* ${option}`).join('\n')}
                 const selectedApp = apps[selectedOption - 1];
                 const appLink = selectedApp.link;
                 const id = appLink.split('?id=')[1];
-                console.log("appLink:", appLink);
-                console.log("ID:::", id);
                 
                 const apkInfo = await hacxkAPKScraper(id);
 
@@ -65,7 +63,8 @@ ${appOptions.map((option, index) => `*${index + 1}.* ${option}`).join('\n')}
 // Helper function to get user response
 async function getUserResponse(m, sock, sentMessage, min, max) {
     return new Promise((resolve, reject) => {
-        const replyHandler = async (msg) => {
+        const replyHandler = async ({ messages }) => {
+            const msg = messages[0];
             if (msg.message?.extendedTextMessage?.contextInfo?.stanzaId === sentMessage.key.id) {
                 const replyText = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
                 const selectedOption = parseInt(replyText);
@@ -79,10 +78,6 @@ async function getUserResponse(m, sock, sentMessage, min, max) {
             }
         };
 
-        sock.ev.on('messages.upsert', async ({ messages }) => {
-            for (let msg of messages) {
-                await replyHandler(msg);
-            }
-        });
+        sock.ev.on('messages.upsert', replyHandler);
     });
 }
