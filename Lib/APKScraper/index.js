@@ -6,14 +6,19 @@ const { parseSearchUrl } = require('./parseSearchUrl');
 const urlFirstPage = 'https://apkcombo.com/';
 
 async function hacxkApkCategory(option) {
+    try {
     const html = await fetchHtml(urlFirstPage);
     if (html) {
         const categories = parseHtml(html, option);
         console.log(JSON.stringify(categories, null, 4));
     }
+} catch {
+
+}
 }
 
 async function hacxkApkSearch(query) {
+    try {
     if (!query) {
         return 'Please provide an APK name';
     }
@@ -25,9 +30,13 @@ async function hacxkApkSearch(query) {
        // console.log(JSON.stringify(searchResults, null, 4));
         return searchResults
     }
+} catch {
+
+}
 }
 
 async function hacxkApkInfo(url) {
+    try {
     if (!url) {
         return 'Please provide an APK URL';
     }
@@ -38,6 +47,9 @@ async function hacxkApkInfo(url) {
       //  console.log(JSON.stringify(apkInfo, null, 4));
         return apkInfo
     }
+} catch {
+
+}
 }
 
 
