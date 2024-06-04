@@ -20,7 +20,7 @@ module.exports = (Command) => {
                 }
 
                 // Fetch data from the API
-                msg.react('🔍', m)
+                await msg.react('🔍', m);
                 const response = await axios.get(`https://api.junn4.my.id/download/facebook?url=${query}`);
                 const { status, result } = response.data;
                 const maxSizeInMB = global.botSettings.directDlLimitinMB[0];
@@ -49,7 +49,7 @@ module.exports = (Command) => {
                     }
 
                     // Download the video
-                    msg.react('⬇️', m)
+                    await msg.react('⬇️', m);
                     const time = new Date().getTime();
                     const videoFilePath = path.join(downloadsDir, `temp_video_${time}.mp4`);
                     const writer = fs.createWriteStream(videoFilePath);
@@ -66,7 +66,7 @@ module.exports = (Command) => {
                         writer.on('finish', resolve);
                         writer.on('error', reject);
                     });
-                    msg.react('⬆️', m)
+                    await msg.react('⬆️', m);
                     // Send the video
                     await sock.sendMessage(
                         m.key.remoteJid,
@@ -79,7 +79,7 @@ module.exports = (Command) => {
                         },
                         { quoted: m }
                     );
-                    msg.react('✅', m)
+                    await msg.react('✅', m);
                     // Clean up the downloaded file
                     fs.unlinkSync(videoFilePath);
                 } else {

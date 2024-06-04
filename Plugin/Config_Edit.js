@@ -96,6 +96,7 @@ module.exports = (Command) => {
                             return;
                         }
                         msg.reply(`Value ${newValue} added to ${variableName} in Config.js`, m);
+                         msg.rate(m)
                     });
                 }
                  else if (replaceMatch) {
@@ -115,6 +116,7 @@ module.exports = (Command) => {
                             return;
                         }
                         msg.reply(`Value of ${variableName} replaced with ${newValue} in Config.js`, m);
+                        msg.rate(m)
                     });
                 } else if (removeMatch) {
                     const [, variableName] = removeMatch;
@@ -143,6 +145,7 @@ module.exports = (Command) => {
                             return;
                         }
                         msg.reply(`Value of ${variableName} removed from Config.js`, m);
+                        msg.rate(m)
                     });
                 }
                  else if (changeBooleanMatch) {
@@ -162,6 +165,7 @@ module.exports = (Command) => {
                             return;
                         }
                         msg.reply(`Boolean value of ${variableName} changed to ${newValue} in Config.js`, m);
+                        msg.rate(m)
                     });
                 } else {
                     // Invalid command format, suggest how to use each command

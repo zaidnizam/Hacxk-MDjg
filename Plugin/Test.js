@@ -1,17 +1,16 @@
-const { delay } = require("@whiskeysockets/baileys");
-
+const fs = require('fs');
+const { delay, proto } = require('@whiskeysockets/baileys');
 
 module.exports = (Command) => {
     Command({
-        cmd: ['edit'], // Define multiple commands as an array
-        desc: 'Check ping in ms',
-        react: "💨", // Reaction emoji
+        cmd: ['rate'],
+        desc: 'Send a beautiful image ad reply with a local file',
+        react: '💨',
         type: 'BOT COMMANDS',
         handler: async (m, sock) => {
-           const l = await sock.sendMessage(m.key.remoteJid, { text: 'Hi' })
-           await delay(3000)
-           const newL = 'Helooooo'
-           msg.edit(l, newL, m)
-        }
+        
+            msg.react('🥰', m)
+            msg.rate(m)
+        },
     });
 };

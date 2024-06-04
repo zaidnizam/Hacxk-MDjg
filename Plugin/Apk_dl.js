@@ -1,7 +1,3 @@
-const axios = require('axios');
-const fs = require('fs');
-const { hacxkApkSearch, hacxkApkInfo } = require('../Lib/APKScraper/index');
-
 module.exports = (Command) => {
     Command({
         cmd: ['apk', 'app', 'software'],
@@ -42,20 +38,21 @@ ${result.data.apks.map((apk, index) => `
                 const sentMessage = await msg.reply(mes, m);
                 await msg.react('🤔', m);
                 const replyHandler = async ({ messages }) => {
-                    const msg = messages[0];
-                    const newUser = msg.key.remoteJid.endsWith('@g.us') ? msg.key.participant : msg.key.remoteJid;
+                    const msgs = messages[0];
+                    const newUser = msgs.key.remoteJid.endsWith('@g.us') ? msgs.key.participant : msgs.key.remoteJid;
                     if (requestedUserNumber !== newUser) {
                         return;
                     }
-                    if (msg.message?.extendedTextMessage?.contextInfo?.stanzaId === sentMessage.key.id) {
-                        const selectedIndex = parseInt(msg.message?.extendedTextMessage?.text) - 1;
+                    if (msgs.message?.extendedTextMessage?.contextInfo?.stanzaId === sentMessage.key.id) {
+                        const selectedIndex = parseInt(msgs.message?.extendedTextMessage?.text) - 1;
                         if (selectedIndex >= 0 && selectedIndex < result.data.apks.length) {
                             const selectedApp = result.data.apks[selectedIndex];
-                            await sock.sendMessage(msg.key.remoteJid, { text: `You selected: ${selectedApp.name}\n\nDownload starting...` }, { quoted: msg });
+                            await msg.reply(`You selected: ${selectedApp.name}\n\nDownload starting...`, msgs);
+                            await msg.rate(m)
                             await sock.ev.off('messages.upsert', replyHandler);
-                            await downloadApk(selectedApp.url, sock, msg, selectedApp.size);
+                            await downloadApk(selectedApp.url, sock, msgs, selectedApp.size);
                         } else {
-                            await sock.sendMessage(msg.key.remoteJid, { text: 'Invalid selection. Please try again.' }, { quoted: msg });
+                            await msg.reply('Invalid selection. Please try again.', msgs);
                         }
                     }
                 };
@@ -66,74 +63,3 @@ ${result.data.apks.map((apk, index) => `
         }
     });
 };
-
-async function downloadApk(url, sock, m, size) {
-    const maxSizeLimit = global.botSettings.maxAPKDownloadSizeInMB[0] * 1024 * 1024; // Convert to bytes
-    try {
-        await msg.react('⬇️', m);
-        const result = await hacxkApkInfo(url);
-        const apkSize = size;
-        if (size > maxSizeLimit) {
-            const errorMessage = `
-┏━━━━━━━━━━━━━━━━┓
-   ⚠️ Download Error ⚠️
-┗━━━━━━━━━━━━━━━━┛
-
-The APK size (${formatBytes(apkSize)}) exceeds the maximum allowed size (${formatBytes(maxSizeLimit)}).
-
-Please try downloading a smaller APK or increase the size limit in the bot settings.
-
-> Here is the download Link Download It Manually ${result.data.downloadLink}
-`;
-
-await msg.react('🚫', m);
-            await sock.sendMessage(m.key.remoteJid, { text: errorMessage }, { quoted: m });
-            return;
-        }
-
-        const response = await axios.get(result.data.downloadLink, { responseType: 'stream' });
-        const fileName = `${result.data.appName}.apk`;
-        const filePath = `./${fileName}`;
-
-        const writer = fs.createWriteStream(filePath);
-        response.data.pipe(writer);
-
-        await new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        });
-        await msg.react('⬆️', m);
-        const caption = `
-┏━━━━━━━━━━━━━━━━━━━┓
-         ${result.data.appName}
-┗━━━━━━━━━━━━━━━━━━━┛
-
-📦 Version: ${result.data.version}
-📝 Author: ${result.data.author}
-📥 Latest Version: ${result.data.latestVersion.version}
-📆 Last Updated: ${result.data.latestVersion.update}
-📂 Size: ${formatBytes(apkSize)}
-🔗 Google Play: ${result.data.latestVersion.googlePlayID}
-
-> HACXK MD APK DOWNLOADER
-`;
-
-        await sock.sendMessage(m.key.remoteJid, { document: fs.readFileSync(filePath), caption, mimetype: 'application/vnd.android.package-archive' }, { quoted: m });
-        fs.unlinkSync(filePath);
-        await msg.react('✅', m);
-    } catch (error) {
-        console.error(error);
-    }
-}
-
-function formatBytes(bytes, decimals = 2) {
-    if (!+bytes) return '0 Bytes';
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
-}

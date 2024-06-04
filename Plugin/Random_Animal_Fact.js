@@ -18,7 +18,7 @@ module.exports = (Command) => {
 
 ${data.facts}
                 `;
-                await sock.sendMessage(m.key.remoteJid, { text: animalFactMessage }, { quoted: m });
+                await msg.reply(animalFactMessage, m);
             } catch (error) {
                 console.error("Error fetching animal fact:", error);
 
@@ -30,9 +30,7 @@ ${data.facts}
                 ];
                 const randomFact = fallbackFacts[Math.floor(Math.random() * fallbackFacts.length)];
 
-                await sock.sendMessage(m.key.remoteJid, { 
-                    text: `Sorry, I couldn't fetch a new fact. Here's one from my collection: ${randomFact}` 
-                });
+                await msg.reply(`Sorry, I couldn't fetch a new fact. Here's one from my collection: ${randomFact}`, m);
             }
         }
     });

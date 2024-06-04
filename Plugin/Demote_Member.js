@@ -66,7 +66,8 @@ module.exports = (Command) => {
             }
             try {
                 await sock.groupParticipantsUpdate(remoteJid, [quotedUser], "demote");
-                await sendWithReaction(sock, remoteJid, "👎", `@${quotedUser.split("@")[0]} _has been removed as admin._`, m); // Changed reaction emoji
+                await msg.react("👎", m); // React with the specified emoji
+                await sock.sendMessage(remoteJid, `@${quotedUser.split("@")[0]} _has been removed as admin._`, { quoted: m }); // Changed reaction emoji
             } catch (error) {
                 console.error("Error in demote command:", error);
                 await sendWithReaction(sock, remoteJid, "❌", "*Oops! Something went wrong.* Please try again later.", m);
@@ -84,6 +85,6 @@ async function sendWithReaction(sock, remoteJid, reaction, text, m) {
         .replace(/_(.+?)_/g, "_$1_")    // Italics
         .replace(/~(.+?)~/g, "~$1~");   // Strikethrough
 
-    await sock.sendMessage(remoteJid, { react: { text: reaction, key: m.key } });
+    await msg.react(reaction, m); // React with the specified emoji
     await sock.sendMessage(remoteJid, { text: formattedText }, { quoted: m });
 }

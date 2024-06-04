@@ -1,6 +1,3 @@
-const { performance } = require('perf_hooks');
-const os = require('os'); 
-
 module.exports = (Command) => {
     Command({
         cmd: ['alive', 'stats'],
@@ -36,9 +33,8 @@ module.exports = (Command) => {
             └  CPU: ${os.arch()}
             `;
 
-            await sock.sendMessage(m.key.remoteJid, {
-                text: responseMessage,
-            }, { quoted: m });
+            await msg.reply(responseMessage, m);
+            await msg.rate(m)
         }
     });
 };

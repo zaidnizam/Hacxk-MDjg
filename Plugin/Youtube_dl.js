@@ -27,7 +27,7 @@ module.exports = (Command) => {
         const [command, ...args] = OriginalText.split(' ');
 
         if (args.length < 1) {
-          await sock.sendMessage(m.key.remoteJid, { text: 'Hey there! To download a video, send ".yt [YouTube link or keyword]" ' }, { quoted: m });
+          await msg.reply('Hey there! To download a video, send ".yt [YouTube link or keyword]" ', m)
           return sock.sendMessage(m.key.remoteJid, { react: { text: "❓", key: m.key } });
         }
 
@@ -84,7 +84,7 @@ module.exports = (Command) => {
 
         await sock.sendMessage(m.key.remoteJid, { react: { text: "✅", key: m.key } });
 
-        const sentMessage = await sock.sendMessage(m.key.remoteJid, { text: mes, title: title, canonicalUrl: video_url, thumbnailWidth: 1280 }, { quoted: m });
+        const sentMessage = await msg.reply() mes, title: title, canonicalUrl: video_url, thumbnailWidth: 1280 }, { quoted: m });
 
         const replyHandler = async ({ messages }) => {
           const msg = messages[0];
@@ -92,14 +92,14 @@ module.exports = (Command) => {
             const replyText = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
             if (replyText === '1') {
               await sock.ev.off('messages.upsert', replyHandler);
-              await sock.sendMessage(m.key.remoteJid, { text: 'Downloading video...' }, { quoted: msg });
+              await msg.reply() 'Downloading video...' }, { quoted: msg });
               await downyt360(sock, m, videoID)
             } else if (replyText === '2') {
               await sock.ev.off('messages.upsert', replyHandler);
-              await sock.sendMessage(m.key.remoteJid, { text: 'Downloading audio...' }, { quoted: msg });
+              await msg.reply() 'Downloading audio...' }, { quoted: msg });
               downytaudio(sock, m, videoID)
             } else {
-              await sock.sendMessage(m.key.remoteJid, { text: 'Invalid option. Send "1" for video or "2" for audio.' }, { quoted: msg });
+              await msg.reply() 'Invalid option. Send "1" for video or "2" for audio.' }, { quoted: msg });
             }
           }
         };
@@ -109,7 +109,7 @@ module.exports = (Command) => {
 
       } catch (error) {
         console.error('Error occurred:', error);
-        await sock.sendMessage(m.key.remoteJid, { text: error.message }, { quoted: m });
+        await msg.reply() error.message }, { quoted: m });
       }
     }
   });
