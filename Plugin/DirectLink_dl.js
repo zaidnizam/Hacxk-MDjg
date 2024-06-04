@@ -33,7 +33,11 @@ module.exports = (Command) => {
             try {
                 // Set downloading flag to true
                 isDownloading = true;
-
+  // Start downloading the file
+  const downloadPath = path.resolve(__dirname, 'downloads', path.basename(args));
+  if (!fs.existsSync(downloadPath)) {
+      fs.mkdirSync(downloadPath);
+    }
                 // Fetch the header to get the file size
                 const headResponse = await axios.head(args);
                 const contentLength = headResponse.headers['content-length'];
@@ -46,11 +50,7 @@ module.exports = (Command) => {
                 }
                 await msg.react('📤', m);
 
-                // Start downloading the file
-                const downloadPath = path.resolve(__dirname, 'downloads', path.basename(args));
-                if (!fs.existsSync(downloadPath)) {
-                    fs.mkdirSync(downloadPath);
-                  }
+              
                 const writer = fs.createWriteStream(downloadPath);
                 const response = await axios({
                     method: 'get',

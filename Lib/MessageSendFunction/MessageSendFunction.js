@@ -13,8 +13,9 @@ async function messageSend(sock) {
                 throw new Error("No message or socket available");
             }
             await sock.sendPresenceUpdate('composing', m.key.remoteJid);
-            await delay(500)
-            await sock.sendMessage(m.key.remoteJid, { text: text }, { quoted: m });
+            await delay(100)
+           const message = await sock.sendMessage(m.key.remoteJid, { text: text }, { quoted: m });
+           return message
         },
         react: async (react, m) => {
             if (!sock) {
@@ -27,8 +28,9 @@ async function messageSend(sock) {
             }
     
             await sock.sendPresenceUpdate('composing', m.key.remoteJid);
-            await delay(500);
-            await sock.sendMessage(m.key.remoteJid, { react: { text: react, key: m.key } });
+            await delay(100);
+            const message = await sock.sendMessage(m.key.remoteJid, { react: { text: react, key: m.key } });
+            return message
         },
         edit: async (oldMsg, newMsg, m) => {
             if (!sock) {
@@ -36,10 +38,11 @@ async function messageSend(sock) {
             }
     
             await sock.sendPresenceUpdate('composing', m.key.remoteJid);
-            await delay(250);
-            await sock.sendMessage(m.key.remoteJid, { edit: oldMsg.key,
+            await delay(50);
+            const message = await sock.sendMessage(m.key.remoteJid, { edit: oldMsg.key,
             text: newMsg,
             type: "MESSAGE_EDIT"});
+            return message
         }
     };
 }

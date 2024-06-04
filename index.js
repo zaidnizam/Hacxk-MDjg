@@ -1,7 +1,7 @@
 const express = require('express');
 const routes = require('./Utils/Main');
 const { startHacxkMd } = require('./Utils/Bot');
-require('./Config');
+// require('./Config');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
