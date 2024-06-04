@@ -200,7 +200,7 @@ const chalk = await import('chalk').then(module => module.default);
                 // Export the message variable so it can be accessed from other files
                 global.message = m; // Assign m to global.message
                 console.log(m);
-                console.log(JSON.stringify(m));
+              //  console.log(JSON.stringify(m));
 
                 if (global.botSettings.Check.Checkers === true) {
                     handleCheck(sock, m)
