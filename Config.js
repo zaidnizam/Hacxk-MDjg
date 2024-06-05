@@ -28,4 +28,4 @@ global.botSettings.Check.RejectCall = true
 global.api = {};
 
 global.api.openAI = ['']
-global.api.gemini = ['AIzaSyB0i2lIksuFBjgzW21yoHL4OZSsGrLvVvw']
+global.api.gemini = ['']
