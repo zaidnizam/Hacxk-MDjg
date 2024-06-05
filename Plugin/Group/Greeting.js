@@ -61,6 +61,14 @@ async function greetings(sock, update) {
                 });
             } catch (error) {
                // console.error('Error downloading profile picture:', error);
+   // Delete the image file after sending
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                         //   console.error('Error deleting file:', err);
+                        } else {
+                          //  console.log(`Deleted file: ${filePath}`);
+                        }
+                    });
             }
         }
     } else if (action === 'remove') {
@@ -111,6 +119,14 @@ async function greetings(sock, update) {
                 });
             } catch (error) {
                // console.error('Error downloading profile picture:', error);
+   // Delete the image file after sending
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                         //   console.error('Error deleting file:', err);
+                        } else {
+                          //  console.log(`Deleted file: ${filePath}`);
+                        }
+                    });
             }
         }
     }
