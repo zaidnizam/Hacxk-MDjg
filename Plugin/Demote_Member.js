@@ -86,5 +86,5 @@ async function sendWithReaction(sock, remoteJid, reaction, text, m) {
         .replace(/~(.+?)~/g, "~$1~");   // Strikethrough
 
     await msg.react(reaction, m); // React with the specified emoji
-    await sock.sendMessage(remoteJid, { text: formattedText }, { quoted: m });
+    await msg.reply(formattedText, m);
 }

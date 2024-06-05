@@ -4,7 +4,7 @@ require('esm')(module);
 require('../../Config');
 
 const commands = [];
-const commandPrefix = global.botSettings.botPrefix[0];
+const commandPrefixes = global.botSettings.botPrefix; // An array of prefixes
 
 // Command Decorator (Unchanged)
 function Command({ cmd, desc, react, type, handler }) {
@@ -15,32 +15,48 @@ function Command({ cmd, desc, react, type, handler }) {
 // Enhanced Handle Command Function
 async function handleCommand(m, sock, delay) {
     try {
-        const textMessage = (m.message?.conversation || m.message?.extendedTextMessage?.text || "").toLowerCase();
+        const textMessage = (m.message?.conversation || m.message?.extendedTextMessage?.text || "").toLowerCase().trim();
 
         // Extract Potential Command and Argument from Input
-        let args = textMessage.split(" ");
-        let potentialCommand = args[0].replace(commandPrefix, '');
+        let potentialCommand;
+        let matchedPrefix;
+
+        // Identify the prefix used and extract the potential command
+        for (let prefix of commandPrefixes) {
+            if (textMessage.startsWith(prefix)) {
+                potentialCommand = textMessage.substring(prefix.length).trim().split(" ")[0];
+                matchedPrefix = prefix;
+                break;
+            }
+        }
+
+        if (!potentialCommand) {
+            return; // No valid command prefix found
+        }
+
+        let args = textMessage.substring(matchedPrefix.length).trim().split(" ");
 
         // Check if it's in the format ".command -h"
         if (args.length === 2 && args[1] === "-h") {
             const matchedCommand = commands.find(command => command.cmd.includes(potentialCommand));
             if (matchedCommand) {
                 await sock.sendMessage(m.key.remoteJid, {
-                    text: `Command: ${commandPrefix}${potentialCommand}\nDescription: ${matchedCommand.desc}`
+                    text: `Command: ${matchedPrefix}${potentialCommand}\nDescription: ${matchedCommand.desc}`
                 }, { quoted: m });
-                return
+                return;
             } else {
                 await sock.sendMessage(m.key.remoteJid, { text: "Command not found." }, { quoted: m });
+                return;
             }
         } else {
             // If not in the specific format, proceed with normal command handling
 
-            const partialCommand = textMessage.split(" ")[0]; 
+            const partialCommand = potentialCommand;
 
-            if (partialCommand.startsWith(commandPrefix)) {
+            if (matchedPrefix) {
                 // Find the matched command
                 const matchedCommand = commands.find(command =>
-                    command.cmd.some(cmd => partialCommand === commandPrefix + cmd)
+                    command.cmd.some(cmd => partialCommand === cmd)
                 );
 
                 if (matchedCommand) {
@@ -58,10 +74,10 @@ async function handleCommand(m, sock, delay) {
                 } else {
                     // Handle similar command suggestions
                     const similarCommands = commands.filter(command =>
-                        command.cmd.some(cmd => cmd.startsWith(partialCommand.slice(commandPrefix.length)))
+                        command.cmd.some(cmd => cmd.startsWith(partialCommand))
                     );
                     if (similarCommands.length > 0) {
-                        const suggestions = similarCommands.map(cmd => commandPrefix + cmd.cmd[0]).join(", ");
+                        const suggestions = similarCommands.map(cmd => matchedPrefix + cmd.cmd[0]).join(", ");
                         await sock.sendMessage(m.key.remoteJid, { react: { text: '🧐', key: m.key } });
                         await sock.sendMessage(m.key.remoteJid, {
                             text: `Command not found.🧐 Did you mean: *${suggestions}*?`
@@ -117,4 +133,3 @@ async function loadCommandsFromFolder(folderPath) {
 
 
 module.exports = { Command, handleCommand, loadCommandsFromFolder, commands };
-

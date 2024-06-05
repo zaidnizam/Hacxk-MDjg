@@ -7,15 +7,15 @@ module.exports = (Command) => {
         handler: async (m, sock) => {
             const { remoteJid, participant, quoted } = m.key;
 
-             // Check if the command sender is the owner or the bot itself
-             const allowedNumbers = global.botSettings.ownerNumbers.map(num => num + '@s.whatsapp.net');
-             allowedNumbers.push(sock.user.id); // Add the bot's number to allowed numbers
- 
-             if (!allowedNumbers.includes(participant)) {
-                 await sendWithReaction(sock, remoteJid, "🚫", "Only the owner or bot can remove members.", m);
-                 return;
-             }
- 
+            // Check if the command sender is the owner or the bot itself
+            const allowedNumbers = global.botSettings.ownerNumbers.map(num => num + '@s.whatsapp.net');
+            allowedNumbers.push(sock.user.id); // Add the bot's number to allowed numbers
+
+            if (!allowedNumbers.includes(participant)) {
+                await sendWithReaction(sock, remoteJid, "🚫", "Only the owner or bot can remove members.", m);
+                return;
+            }
+
 
             // Check if the command is used in a group
             if (!remoteJid.endsWith('@g.us')) {
@@ -25,10 +25,10 @@ module.exports = (Command) => {
 
             // Check if the bot is an admin in the group
             const groupMetadata = await sock.groupMetadata(remoteJid);
-            const botId = sock.user.id.replace(/:.*$/, "") + "@s.whatsapp.net"; 
+            const botId = sock.user.id.replace(/:.*$/, "") + "@s.whatsapp.net";
             const botIsAdmin = groupMetadata.participants.some(p => p.id.includes(botId) && p.admin);
 
-            if (!botIsAdmin) { 
+            if (!botIsAdmin) {
                 await sendWithReaction(sock, m.key.remoteJid, "🤖", "I cannot remove participants because I am not a superadmin or admin in this group.", m);
                 return;
             }
@@ -40,7 +40,7 @@ module.exports = (Command) => {
                 quotedUser = m.message.extendedTextMessage.contextInfo.participant; // Get from quoted message
             }
 
-           
+
             // Check if a quoted message or mentioned user exists
             if (!quotedUser) {
                 await sendWithReaction(sock, remoteJid, "🤔", "Please quote the message of the user you want to remove or mention the user with @.", m);
@@ -76,6 +76,6 @@ async function sendWithReaction(sock, remoteJid, reaction, text, m) {
         .replace(/_(.+?)_/g, "_$1_")    // Italics
         .replace(/~(.+?)~/g, "~$1~");   // Strikethrough
 
-    await sock.sendMessage(remoteJid, { react: { text: reaction, key: m.key } });
-    await sock.sendMessage(remoteJid, { text: formattedText }, { quoted: m });
+    await msg.react(reaction, m); // Add reaction
+    await msg.reply(formattedText, m); // Send the quote message
 }

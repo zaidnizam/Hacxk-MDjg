@@ -6,20 +6,25 @@ module.exports = (Command) => {
         type: 'GROUP COMMANDS',
         handler: async (m, sock) => {
             if (!m.key.remoteJid.endsWith("@g.us")) {
-                return sock.sendMessage(m.key.remoteJid, { text: 'This command can only be used in groups!' }, { quoted: m });
+                await msg.reply('This command can only be used in groups!', m);
+                return;
             }
 
-            const groupMetadata = await sock.groupMetadata(m.key.remoteJid);
-            const participants = groupMetadata.participants;
+            try {
+                // React to the command
+                await msg.react("✨", m);
 
-            const admins = participants.filter(p => p.admin);
-            const adminNames = admins.map(admin => admin.id.split('@')[0]).join(', ');
+                const groupMetadata = await sock.groupMetadata(m.key.remoteJid);
+                const participants = groupMetadata.participants;
 
-            const creationDate = new Date(groupMetadata.creation * 1000);
-            const ageInDays = Math.round((Date.now() - creationDate) / (1000 * 60 * 60 * 24));
-            const ageString = ageInDays < 1 ? '👶 Brand new!' : `${ageInDays} days young`;
+                const admins = participants.filter(p => p.admin);
+                const adminNames = admins.map(admin => admin.id.split('@')[0]).join(', ');
 
-            const responseMessage = `
+                const creationDate = new Date(groupMetadata.creation * 1000);
+                const ageInDays = Math.round((Date.now() - creationDate) / (1000 * 60 * 60 * 24));
+                const ageString = ageInDays < 1 ? '👶 Brand new!' : `${ageInDays} days young`;
+
+                const responseMessage = `
 ╔═════════════════════╗
 ║ ✨  Group Information  ✨   ║
 ╠═════════════════════╣
@@ -38,7 +43,11 @@ module.exports = (Command) => {
 
 ✨  May this group thrive with joy, laughter, and connection! ✨
 `;
-            await sock.sendMessage(m.key.remoteJid, { text: responseMessage }, { quoted: m });
+                await msg.reply(responseMessage, m);
+            } catch (error) {
+                console.error(error);
+                await msg.reply('An error occurred while retrieving group information.', m);
+            }
         }
     });
 };

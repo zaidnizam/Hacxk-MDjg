@@ -57,6 +57,7 @@ const chalk = await import('chalk').then(module => module.default);
             syncFullHistory: false,
             downloadHistory: false,
             markOnlineOnConnect: true,
+            defaultQueryTimeoutMs: undefined,
             logger,
             Browsers: ['Ubuntu', 'Chrome', '113.0.5672.126'],
             auth: {
@@ -119,6 +120,7 @@ const chalk = await import('chalk').then(module => module.default);
                 });
                 await messageSend(sock)
                 await delay(5000);
+                await sock.sendPresenceUpdate('available', sock.user.id);
                 const emojis = ['❤️', '💛', '💚', '💜'];
                 const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
                 await sock.sendMessage(sock.user.id, {

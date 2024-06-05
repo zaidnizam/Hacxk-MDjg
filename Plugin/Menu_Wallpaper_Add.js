@@ -15,20 +15,23 @@ module.exports = (Command) => {
                 const isOwner = ownerNumbers.includes(senderNumber);
 
                 if (!isOwner || !m.key.fromMe) {
-                    return await sock.sendMessage(m.key.remoteJid, { text: "Only bot owners can use this command." }, { quoted: m });
+                    await msg.reply("Only bot owners can use this command.", m);
+                    return;
                 }
 
-                const msg = m.message;
-                const media = msg?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage;
+                const media = m.message?.extendedTextMessage?.contextInfo?.quotedMessage?.imageMessage;
 
                 if (!media) {
-                    return await sock.sendMessage(m.key.remoteJid, { text: "Please reply to an image message with this command." }, { quoted: m });
+                    await msg.reply("Please reply to an image message with this command.", m);
+                    return;
                 }
+
+                await msg.react("🖼️", m);
 
                 const stream = await downloadContentFromMessage(media, 'image');
                 const chunks = [];
                 stream.on('data', chunk => chunks.push(chunk));
-                stream.on('end', () => {
+                stream.on('end', async () => {
                     const buffer = Buffer.concat(chunks);
                     const fileName = `menu_wall_${Date.now()}.jpg`;
                     const folderPath = path.join(__dirname, '../Assets/_MenuAssets');
@@ -40,11 +43,11 @@ module.exports = (Command) => {
 
                     fs.writeFileSync(filePath, buffer);
 
-                     sock.sendMessage(m.key.remoteJid, { text: "Menu wall image set successfully!" }, { quoted: m });
+                    await msg.reply("Menu wall image set successfully!", m);
                 });
             } catch (error) {
                 console.error("Error setting menu wall image:", error);
-                await sock.sendMessage(m.key.remoteJid, { text: "An error occurred while setting the menu wall image." }, { quoted: m });
+                await msg.reply("An error occurred while setting the menu wall image.", m);
             }
         }
     });

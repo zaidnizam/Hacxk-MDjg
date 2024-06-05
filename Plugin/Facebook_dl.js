@@ -15,7 +15,7 @@ module.exports = (Command) => {
                     || m.message?.extendedTextMessage?.text.split(' ').slice(1).join(' ');
 
                 if (!query) {
-                    await sock.sendMessage(m.key.remoteJid, { text: 'Please provide a Facebook video URL.' }, { quoted: m });
+                    await msg.reply('Please provide a Facebook video URL.', m);
                     return;
                 }
 
@@ -75,7 +75,7 @@ module.exports = (Command) => {
                             mimetype: 'video/mp4',
                             height: 1152,
                             width: 2048,
-                            caption: `*𝘏𝘈𝘊𝘟𝘒 𝘔𝘋*`
+                            caption: `*𝘏𝘈𝘊𝘒𝘚𝘜𝘔𝘋*`
                         },
                         { quoted: m }
                     );
@@ -83,11 +83,11 @@ module.exports = (Command) => {
                     // Clean up the downloaded file
                     fs.unlinkSync(videoFilePath);
                 } else {
-                    await sock.sendMessage(m.key.remoteJid, { text: 'Failed to fetch video details. Please try again later.' }, { quoted: m });
+                    await msg.reply('Failed to fetch video details. Please try again later.', m);
                 }
             } catch (error) {
                 console.error(error);
-                await sock.sendMessage(m.key.remoteJid, { text: 'An error occurred while processing your request.' }, { quoted: m });
+                await msg.reply('An error occurred while processing your request.', m);
             }
         }
     });

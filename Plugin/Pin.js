@@ -3,27 +3,25 @@ const { proto } = require("@whiskeysockets/baileys");
 module.exports = (Command) => {
     Command({
         cmd: 'pin',
-        desc: 'pin a message in a group(if bot is admin)',
+        desc: 'Pin a message in a group (if bot is admin)',
         react: "📌",
         type: 'GROUP COMMANDS',
         handler: async (m, sock) => {
             try {
+                const { remoteJid, participant } = m.key;
 
-                const { remoteJid, participant, quoted } = m.key;
+                // Check if the command is used in a group
+                if (!remoteJid.endsWith('@g.us')) {
+                    await sendWithReaction(sock, remoteJid, "❌", "This command can only be used in groups.", m);
+                    return;
+                }
 
                 // Check if the command sender is the owner or the bot itself
                 const allowedNumbers = global.botSettings.ownerNumbers.map(num => num + '@s.whatsapp.net');
                 allowedNumbers.push(sock.user.id); // Add the bot's number to allowed numbers
 
                 if (!allowedNumbers.includes(participant)) {
-                    await sendWithReaction(sock, remoteJid, "🚫", "Only the owner or bot can pin message.", m);
-                    return;
-                }
-
-
-                // Check if the command is used in a group
-                if (!remoteJid.endsWith('@g.us')) {
-                    await sendWithReaction(sock, remoteJid, "❌", "This command can only be used in groups.", m);
+                    await sendWithReaction(sock, remoteJid, "🚫", "Only the owner or bot can pin a message.", m);
                     return;
                 }
 
@@ -33,11 +31,11 @@ module.exports = (Command) => {
                 const botIsAdmin = groupMetadata.participants.some(p => p.id.includes(botId) && p.admin);
 
                 if (!botIsAdmin) {
-                    await sendWithReaction(sock, m.key.remoteJid, "🤖", "I cannot pin message because I am not a superadmin or admin in this group.", m);
+                    await sendWithReaction(sock, remoteJid, "🤖", "I cannot pin messages because I am not an admin in this group.", m);
                     return;
                 }
 
-                await sock.sendMessage(m.key.remoteJid, { text: 'Now Send The Message You Want To Pin!' }, { quoted: m });
+                await sock.sendMessage(remoteJid, { text: 'Now send the message you want to pin!' }, { quoted: m });
 
                 // Define the event handler within the closure
                 const messageHandler = async ({ messages }) => {
@@ -64,24 +62,31 @@ module.exports = (Command) => {
 
             } catch (error) {
                 console.error("Error sending message:", error);
-                // Handle the error appropriately, like notifying the user or logging the error.
+                await sendWithReaction(sock, remoteJid, "⚠️", "An error occurred while processing your request.", m);
             }
         }
     });
 };
 
 const replyHandler = async (msg, m, sock) => {
-    // Pin the message for everyone
-    await sock.relayMessage(m.key.remoteJid, {
-        pinInChatMessage: {
-            key: msg.key,
-            type: proto.Message.PinInChatMessage.Type.PIN_FOR_ALL,
-            senderTimestampMs: new Date().getTime()
-        },
-        messageContextInfo: {
-            messageAddOnDurationInSecs: 2592000
-        }
-    }, { message: msg.key });
+    try {
+        // Pin the message for everyone
+        await sock.relayMessage(m.key.remoteJid, {
+            pinInChatMessage: {
+                key: msg.key,
+                type: proto.Message.PinInChatMessage.Type.PIN_FOR_ALL,
+                senderTimestampMs: new Date().getTime()
+            },
+            messageContextInfo: {
+                messageAddOnDurationInSecs: 2592000 // 30 days in seconds
+            }
+        }, { messageId: msg.key.id });
+
+        await sendWithReaction(sock, m.key.remoteJid, "📌", "Message pinned successfully!", m);
+    } catch (error) {
+        console.error("Error pinning message:", error);
+        await sendWithReaction(sock, m.key.remoteJid, "⚠️", "Failed to pin the message.", m);
+    }
 };
 
 // Helper function to send a message with a reaction and WhatsApp font hacks
@@ -92,6 +97,6 @@ async function sendWithReaction(sock, remoteJid, reaction, text, m) {
         .replace(/_(.+?)_/g, "_$1_")    // Italics
         .replace(/~(.+?)~/g, "~$1~");   // Strikethrough
 
-    await sock.sendMessage(remoteJid, { react: { text: reaction, key: m.key } });
-    await sock.sendMessage(remoteJid, { text: formattedText }, { quoted: m });
+    await msg.react(reaction, m);
+    await msg.reply(formattedText, m);
 }

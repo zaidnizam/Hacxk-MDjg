@@ -54,25 +54,25 @@ module.exports = (Command) => {
 .  🌺 ${BOT_NAME} 🌺
 ┗━━━━━◢◤◆◥◣━━━━━━━┛
 
-*✧ 𝒩𝒶𝓂𝑒:* ${BOT_NAME}
-*✧ 𝒱𝑒𝓇𝓈𝒾𝑜𝓃:* ${version}
-*✧ 𝒰𝓅𝓉𝒾𝓂𝑒:* ${uptime}
-*✧ 𝒫𝓇𝑒𝒻𝒾𝓍:* ${prefix}
-*✧ 𝒫𝒾𝓃𝑔:* ${ping}
-*✧ 𝒪𝓌𝓃𝑒𝓇:* ${ownerName}
+*✧ ɴᴀᴍᴇ:* ${BOT_NAME}
+*✧ ᴠᴇʀꜱɪᴏɴ:* ${version}
+*✧ ᴜᴘᴛɪᴍᴇ:* ${uptime}
+*✧ ᴘʀᴇꜰɪx:* ${prefix}
+*✧ ᴘɪɴɢ:* ${ping}
+*✧ ᴏᴡɴᴇʀ:* ${ownerName}
 
-hey are you searching how to get me feel free to visit here:
+ミ★ 𝘩𝘦𝘺 𝘢𝘳𝘦 𝘺𝘰𝘶 𝘴𝘦𝘢𝘳𝘤𝘩𝘪𝘯𝘨 𝘩𝘰𝘸 𝘵𝘰 𝘨𝘦𝘵 𝘮𝘦 𝘧𝘦𝘦𝘭 𝘧𝘳𝘦𝘦 𝘵𝘰 𝘷𝘪𝘴𝘪𝘵 𝘩𝘦𝘳𝘦: ★彡
 https://github.com/hacxk/Hacxk-MD
 
-*Need help? Here's what I can do:*
+𝙽𝚎𝚎𝚍 𝚑𝚎𝚕𝚙? 𝙷𝚎𝚛𝚎'𝚜 𝚠𝚑𝚊𝚝 𝙸 𝚌𝚊𝚗 𝚍𝚘:
 `;
 
             for (const [type, commandsOfType] of Object.entries(commandTypes)) {
-                menuText += `\n ⚜️  *${type}*\n`;
-                commandsOfType.forEach(command => {
+                menuText += `\n ✦ ───『*${type}*』─── ✵\n\n`;
+                commandsOfType.forEach(command => { 
                     const cmds = Array.isArray(command.cmd) ? command.cmd : [command.cmd];
                     cmds.forEach(cmd => {
-                        menuText += `- *\`${prefix}${cmd}\`*\n`;
+                        menuText += `◈ *\`\`\`${prefix}${cmd}\`\`\`*\n`;
                     });
                 });
             }
@@ -82,7 +82,7 @@ https://github.com/hacxk/Hacxk-MD
 \`${prefix}command -h\`
 
 For any questions or issues, feel free to contact the owner:
-${ownerName} - ${ownerNumbers}
+${ownerName} - ${ownerNumbers} - 🇭 🇦 🇨 🇽 🇰 
 ┗━━━━━◢◤◆◥◣━━━━━━┛
 `;
 

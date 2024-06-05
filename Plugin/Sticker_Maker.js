@@ -73,6 +73,6 @@ async function sendWithReaction(sock, remoteJid, reaction, text, m) {
         .replace(/_(.+?)_/g, "_$1_")    // Italics
         .replace(/~(.+?)~/g, "~$1~");   // Strikethrough
 
-    await sock.sendMessage(remoteJid, { react: { text: reaction, key: m.key } });
-    await sock.sendMessage(remoteJid, { text: formattedText }, { quoted: m });
+    await msg.react(reaction, m);
+    await msg.reply(formattedText, m);
 }

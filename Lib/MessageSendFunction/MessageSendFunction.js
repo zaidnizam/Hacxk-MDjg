@@ -83,6 +83,8 @@ async function messageSend(sock) {
  - \`SOME MAIN BUG FIXES+\`
                     
     🔍 Learn more: Check out Hacxk-MD on GitHub!
+
+    🐛 If you find any bugs in this bot send \`.bug [command] [small bug message]\` so i can look and fix it!
                     
     📧 For inquiries, contact the owner: Mr-Zaid
                     `,
@@ -90,8 +92,8 @@ async function messageSend(sock) {
                             externalAdReply: {
                                 showAdAttribution: false,
                                 renderLargerThumbnail: true,
-                                title: 'Hacxk Multi-Device Note-Taking', // Descriptive title
-                                body: 'Hacxk-MD: Your multi-device note-taking companion', // More descriptive body
+                                title: 'Hacxk Multi-Device Whatsapp Bot!', // Descriptive title
+                                body: 'Hacxk-MD: Your multi-device Whatsapp Bot!', // More descriptive body
                                 mediaType: proto.ContextInfo.ExternalAdReplyInfo.MediaType.IMAGE,
                                 thumbnailUrl: 'https://github.com/hacxk/Hacxk-MD', // Replace with your thumbnail URL
                                 width: 3840,

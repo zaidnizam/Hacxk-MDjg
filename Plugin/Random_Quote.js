@@ -16,10 +16,10 @@ _"${data.content}"_
 
 - ${data.author}
                 `;
-                await sock.sendMessage(m.key.remoteJid, { text: quoteMessage }, { quoted: m }); 
+                await msg.reply(quoteMessage, m); // Send the quote message
             } catch (error) {
                 console.error("Error fetching quote:", error);
-                await sock.sendMessage(m.key.remoteJid, { text: "Sorry, I couldn't find an inspirational quote right now. 😔" });
+                await msg.reply("Sorry, I couldn't find an inspirational quote right now. 😔", m); // Send error message
             }
         }
     });

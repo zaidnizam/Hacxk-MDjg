@@ -5,8 +5,7 @@ module.exports = (Command) => {
         react: "😶", 
         type: 'BOT COMMANDS',
         handler: async (m, sock) => {
-        
-            const { remoteJid, participant, quoted } = m.key;
+            const { remoteJid, participant } = m.key;
 
             // Initial checks
             if (!remoteJid.endsWith('@g.us')) {
@@ -30,21 +29,20 @@ module.exports = (Command) => {
             const botIsAdmin = groupMetadata.participants.some(p => p.id.includes(botNumber) && p.admin);
 
             if (!botIsAdmin) {
-                await sendWithReaction(sock, m.key.remoteJid, "🤖", "*I cannot mute chat because I am not an admin in this group.*", m);
+                await sendWithReaction(sock, remoteJid, "🤖", "*I cannot mute chat because I am not an admin in this group.*", m);
                 return;
             }
-            const groupInfo = await sock.groupMetadata(m.key.remoteJid)
-          if (!groupInfo.announce) {
-          await sock.groupSettingUpdate(m.key.remoteJid, "announcement");
-          return
-          } else {
-            await msg.reply('Group Already Muted!', m)
-            return
-          }
+
+            const groupInfo = await sock.groupMetadata(remoteJid);
+            if (!groupInfo.announce) {
+                await sock.groupSettingUpdate(remoteJid, "announcement");
+                await sendWithReaction(sock, remoteJid, "🔇", "*Group has been muted successfully!*", m);
+            } else {
+                await sendWithReaction(sock, remoteJid, "🔇", "*Group is already muted!*", m);
+            }
         }
     });
 };
-
 
 // Helper function to send a message with a reaction and WhatsApp font hacks
 async function sendWithReaction(sock, remoteJid, reaction, text, m) {
@@ -54,6 +52,6 @@ async function sendWithReaction(sock, remoteJid, reaction, text, m) {
         .replace(/_(.+?)_/g, "_$1_")    // Italics
         .replace(/~(.+?)~/g, "~$1~");   // Strikethrough
 
-    await sock.sendMessage(remoteJid, { react: { text: reaction, key: m.key } });
-    await sock.sendMessage(remoteJid, { text: formattedText }, { quoted: m });
+    await msg.react(reaction, m);
+    await msg.reply(formattedText, m);
 }

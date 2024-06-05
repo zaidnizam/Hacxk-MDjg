@@ -1,4 +1,5 @@
 const { delay } = require("@whiskeysockets/baileys");
+const { messageSend } = require("../Lib/MessageSendFunction/MessageSendFunction");
 
 module.exports = (Command) => {
     Command({
@@ -7,6 +8,9 @@ module.exports = (Command) => {
         react: "🔄",
         type: 'BOT COMMANDS',
         handler: async (m, sock) => {
+            // Initialize message sending functions
+            await messageSend(sock);
+
             const jid = m.key.remoteJid.endsWith('@g.us') ? m.key.participant : m.key.remoteJid;
             // Extract the correct bot ID including the server
             const botNumber = sock.user.id.replace(/:.*$/, "") + "@s.whatsapp.net";
@@ -16,16 +20,12 @@ module.exports = (Command) => {
             allowedNumbers.push(botNumber);
 
             if (!allowedNumbers.includes(jid)) {
-                await sock.sendMessage(m.key.remoteJid, {
-                    text: "🚫 *Only the owner or the bot can restart the bot.*"
-                }, { quoted: m });
+                await msg.reply("🚫 *Only the owner or the bot can restart the bot.*", m);
                 return;
             }
 
             // Send a restart notification message
-            await sock.sendMessage(m.key.remoteJid, {
-                text: "🔄 *Bot is restarting...*\n\nPlease wait a moment while I come back online."
-            }, { quoted: m });
+            await msg.reply("🔄 *Bot is restarting...*\n\nPlease wait a moment while I come back online.", m);
             await delay(2500);
 
             // End the current connection

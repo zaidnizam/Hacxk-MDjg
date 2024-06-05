@@ -18,10 +18,12 @@ module.exports = (Command) => {
 ${data.punchline}
                 `;
 
-                await sock.sendMessage(m.key.remoteJid, { text: jokeMessage }, { quoted: m }); // Add quote if needed
+                await msg.react("😂", m); // Add reaction
+                await msg.reply(jokeMessage, m); // Send the joke message
             } catch (error) {
                 console.error("Error fetching joke:", error);
-                await sock.sendMessage(m.key.remoteJid, { text: "Sorry, I couldn't find a joke right now. 😔" });
+                await msg.react("😔", m); // Add reaction for error
+                await msg.reply("Sorry, I couldn't find a joke right now.", m); // Send error message
             }
         }
     });

@@ -1,6 +1,6 @@
 module.exports = (Command) => {
     // ... other commands ...
-    
+
     // Help Command (Enhanced)
     Command({
         cmd: 'help',
@@ -10,7 +10,7 @@ module.exports = (Command) => {
         handler: async (m, sock, commands) => {
             const prefix = global.botSettings.botPrefix[0];
 
-            // Extract arguments from the message (unchanged)
+            // Extract arguments from the message
             let args = [];
             if (m.message?.extendedTextMessage?.text) {
                 args = m.message.extendedTextMessage.text.split(/ +/);
@@ -41,11 +41,11 @@ module.exports = (Command) => {
                     helpText += "\n"; // Add spacing between categories
                 }
                 helpText += `\nType \`${prefix}help <command_name>\` for more info on a specific command.`;
-                
-                await sock.sendMessage(m.key.remoteJid, { text: helpText }, { quoted: m });
+
+                await msg.reply(helpText, m);
 
             } else {
-                // Argument provided: Show help for that specific command (unchanged)
+                // Argument provided: Show help for that specific command
                 const commandName = args[0].toLowerCase();
                 const command = commands[commandName];
                 if (command) {
@@ -54,9 +54,9 @@ Command: \`${prefix}${commandName}\`
 Description: ${command.desc}
 ${command.args ? `Arguments: ${command.args}\n` : ''} 
                     `;
-                    await sock.sendMessage(m.key.remoteJid, { text: helpText }, { quoted: m });
+                    await msg.reply(helpText, m);
                 } else {
-                    await sock.sendMessage(m.key.remoteJid, { text: "Command not found." }, { quoted: m });
+                    await msg.reply("Command not found.", m);
                 }
             }
         }
