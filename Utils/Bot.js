@@ -6,6 +6,7 @@ const pino = require('pino');
 const { Boom } = require("@hapi/boom");
 const fs = require('fs');
 const path = require('path');
+const qrcode = require('qrcode')
 require('esm')(module);
 // Require the utils file to ensure the reply function is globally available
 const { messageSend } = require('../Lib/MessageSendFunction/MessageSendFunction');
@@ -34,11 +35,31 @@ if (fs.existsSync(path.join(__dirname, '../Plugin/Guard'))) {
     console.error('\x1b[31m❌ Error: Guard folder not found.\x1b[0m');
 }
 
+
 // Function to start the WhatsApp bot
-const startHacxkMd = async () => {
-require('../Config');
+const startHacxkMd = async (io, app) => {
+    if (!io) {
+        console.error('Socket.IO is not defined.');
+        return;
+    }
+
+    if (!app) {
+        console.error('app is not defined.');
+        return;
+    }
+
+    // Event listener for when a client connects
+    io.on('connection', (socket) => {
+        console.log('A client connected');
+
+        // Event listener for when a client disconnects
+        socket.on('disconnect', () => {
+            console.log('A client disconnected');
+        });
+    });
+    require('../Config');
     // Import chalk dynamically
-const chalk = await import('chalk').then(module => module.default);
+    const chalk = await import('chalk').then(module => module.default);
 
     // Set up logging
     const logger = pino({ level: 'silent' });
@@ -71,9 +92,23 @@ const chalk = await import('chalk').then(module => module.default);
         // Export the sock variable so it can be accessed from other files
         global.sock = sock;
         log('Socket initialized.', '🔌');
-       // sock.setMax
+        // sock.setMax
         const store = makeInMemoryStore({ logger: pino().child({ level: 'silent', stream: 'store' }) });
         store.bind(sock.ev);
+
+        // // In your Express server file (Main.js or other)
+        // app.get('/getNewPairingCode', (req, res) => {
+        //     // Pairing code for Web clients
+        //     if (usePairingCode && !sock.authState.creds.registered) {
+        //         if (useMobile) {
+        //             throw new Error('Cannot use pairing code with mobile api')
+        //         }
+
+        //         const phoneNumber =  question('Please enter your mobile phone number:\n')
+        //         const code =  sock.requestPairingCode(phoneNumber)
+        //         console.log(`Pairing code: ${code}`)
+        //     }
+        // });
 
         sock.ev.on('connection.update', async (update) => {
             const { connection, lastDisconnect, qr } = update;
@@ -81,6 +116,10 @@ const chalk = await import('chalk').then(module => module.default);
             if (qr) {
                 log('QR code available:', '📷');
                 console.log(qr);
+                qrcode.toDataURL(qr, (err, url) => {
+                    console.log('Qr Code Sending To Client!')
+                    io.emit("qr", url);
+                });
                 const sessionManger = global.botSettings.tempSession;
                 if (sessionManger === true) {
                     const result = await SessionHandle("Paste");
@@ -93,6 +132,34 @@ const chalk = await import('chalk').then(module => module.default);
                 }
             }
 
+            // In your Express server file (Main.js or other)
+            app.get('/getNewQR', (req, res) => {
+                getNewQr()
+                // Your logic to generate and return a new QR code here
+                // For demonstration, let's just send a simple response
+                res.send('New QR code generated!');
+                io.emit("msg", 'New QR code generated! 🆕');
+            });
+
+
+            function getNewQr() {
+                console.log('nahhhhh')
+                const qrHandler = async (update) => {
+                    const { qr } = update;
+
+                    if (qr) {
+                        qrcode.toDataURL(qr, (err, url) => {
+                            io.emit("qr", url);
+
+                        });
+                        sock.ev.off('connection.update', qrHandler);
+                        return
+                    }
+                };
+                sock.ev.on('connection.update', qrHandler);
+                return
+            }
+
             if (connection === "open") {
                 const sessionManger = global.botSettings.tempSession;
                 if (sessionManger === true) {
@@ -100,6 +167,8 @@ const chalk = await import('chalk').then(module => module.default);
                 }
                 await autoCleanUp()
                 log('Connection opened!', '✅');
+                io.emit("msg", 'Connected Successfully ✅');
+                io.emit("connected", 'Connected Successfully ✅');
                 sock.sendReadReceiptAck = true;
                 const ownerName = global.botSettings.ownerName[0];
                 const number = global.botSettings.ownerNumbers[0];
@@ -149,29 +218,45 @@ const chalk = await import('chalk').then(module => module.default);
                         case DisconnectReason.connectionClosed:
                             log('Connection closed!', '🔒');
                             await delay(1000);
-                            startHacxkMd();
+                            io.emit("msg", 'Connection closed! 🔒');
+                            sock.ev.removeAllListeners();
+                            startHacxkMd(io, app);
+                            return
                             break;
                         case DisconnectReason.connectionLost:
                             log('Connection lost from server!', '📡');
+                            io.emit("msg", 'Connection lost from server! 📡');
                             log('Trying to Reconnect!', '🔂');
+                            io.emit("msg", 'Trying to Reconnect! 🔂');
                             await delay(2000);
-                            startHacxkMd();
+                            sock.ev.removeAllListeners();
+                            startHacxkMd(io, app);
+                            return
                             break;
                         case DisconnectReason.restartRequired:
                             log('Restart required, restarting...', '🔄');
+                            io.emit("msg", 'Restart required, restarting... 🔄');
                             await delay(1000);
-                            startHacxkMd();
+                            sock.ev.removeAllListeners();
+                            startHacxkMd(io, app);
+                            return
                             break;
                         case DisconnectReason.timedOut:
                             log('Connection timed out!', '⌛');
+                            io.emit("msg", 'Connection timed out! ⌛');
                             await delay(1000);
-                            startHacxkMd();
+                            sock.ev.removeAllListeners();
+                            startHacxkMd(io, app);
+                            return
                             break;
                         default:
                             errorLog('Connection closed with bot. Trying to run again.', '⚠️');
                             await delay(3000);
-                            startHacxkMd();
+                            io.emit("msg", 'Connection closed with bot. Trying to run again. ⚠️');
+                            sock.ev.removeAllListeners();
+                            startHacxkMd(io, app);
                             log(`Reason: ${reason}`, 'ℹ️');
+                            return
                             break;
                     }
                 } catch (error) {
@@ -199,10 +284,11 @@ const chalk = await import('chalk').then(module => module.default);
         sock.ev.on('messages.upsert', async ({ messages, type }) => {
             try {
                 const m = messages[0];
+                io.emit("logs", m);
                 // Export the message variable so it can be accessed from other files
                 global.message = m; // Assign m to global.message
                 console.log(m);
-              //  console.log(JSON.stringify(m));
+                //  console.log(JSON.stringify(m));
 
                 if (global.botSettings.Check.Checkers === true) {
                     handleCheck(sock, m)
@@ -230,5 +316,6 @@ const chalk = await import('chalk').then(module => module.default);
         errorLog(error.message, '❌');
     }
 };
+
 
 module.exports = { startHacxkMd };

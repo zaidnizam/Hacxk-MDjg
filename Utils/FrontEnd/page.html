@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Homepage</title>
+    <style>
+        :root {
+            --background-light: radial-gradient(circle, #f5f5f5 0%, #e0e0e0 100%);
+            --background-dark: radial-gradient(circle, #1a1a1a 0%, #333333 100%);
+            --text-light: #333;
+            --text-dark: #f5f5f5;
+            --primary-light: #007BFF;
+            --primary-dark: #0056b3;
+            --header-footer-bg-light: #333;
+            --header-footer-bg-dark: #1a1a1a;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: var(--background-light);
+            text-align: center;
+            color: var(--text-light);
+            transition: background 0.5s, color 0.5s;
+        }
+
+        .dark-mode {
+            background: var(--background-dark);
+            color: var(--text-dark);
+        }
+
+        header,
+        footer {
+            background: var(--header-footer-bg-light);
+            color: white;
+            width: 100%;
+            padding: 1em 0;
+            transition: background 0.5s;
+        }
+
+        .dark-mode header,
+        .dark-mode footer {
+            background: var(--header-footer-bg-dark);
+        }
+
+        nav a {
+            color: white;
+            margin: 0 1em;
+            text-decoration: none;
+        }
+
+        main {
+            flex: 1;
+            padding: 2em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .console-log,
+        .status-box,
+        .actions {
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 1em;
+            margin: 1em 0;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: background 0.5s, border-color 0.5s, box-shadow 0.5s;
+        }
+
+        .dark-mode .console-log,
+        .dark-mode .status-box,
+        .dark-mode .actions {
+            background: #333;
+            border-color: #555;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+
+        .console-log {
+            height: 200px;
+            overflow-y: scroll;
+            text-align: left;
+            font-family: monospace;
+            background: #f9f9f9;
+        }
+
+        .dark-mode .console-log {
+            background: #2a2a2a;
+        }
+
+        .actions button {
+            padding: 0.5em 1em;
+            border: none;
+            border-radius: 5px;
+            background: var(--primary-light);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .actions button:hover {
+            background: var(--primary-dark);
+        }
+
+        .dark-mode .actions button {
+            background: var(--primary-dark);
+        }
+
+        @media (max-width: 600px) {
+
+            .console-log,
+            .status-box,
+            .actions {
+                width: 95%;
+            }
+        }
+
+        .toggle-button {
+            position: fixed;
+            top: 1em;
+            right: 1em;
+            padding: 0.5em 1em;
+            border: none;
+            border-radius: 5px;
+            background: var(--primary-light);
+            color: white;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .dark-mode .toggle-button {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+
+<body>
+    <button class="toggle-button" onclick="toggleMode()">Dark Mode</button>
+    <main>
+        <div id="notificationContainer" class="notification-container"></div>
+        <div class="console-log" id="consoleLog">
+            <p>[INFO] Bot started successfully.</p>
+            <p>[INFO] Waiting for connections...</p>
+        </div>
+        <div class="status-box">
+            <p>Status: <span id="status">Working</span></p>
+            <p>Logged In: <span id="loggedIn">No</span></p>
+        </div>
+        <div class="actions">
+            <button onclick="restartBot()">Restart Bot</button>
+            <button onclick="qrCode()">QR CODE</button>
+            <button onclick="pairingCode()">PAIRING CODE (not available)</button>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Our Company. All rights reserved.</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+    <script>
+        // Connect to the server
+        const socket = io();
+        const MAX_LOG_ENTRIES = 20;
+
+        socket.on('logs', (logMessages) => {
+            const consoleLog = document.getElementById('consoleLog');
+            logMessages.forEach(log => {
+                const logEntry = document.createElement('p');
+                logEntry.textContent = `[LOG] ${JSON.stringify(log, null, 2)}`;
+                consoleLog.appendChild(logEntry);
+            });
+
+            while (consoleLog.children.length > MAX_LOG_ENTRIES) {
+                consoleLog.removeChild(consoleLog.firstChild);
+            }
+
+            consoleLog.scrollTop = consoleLog.scrollHeight;
+        });
+
+        function restartBot() {
+            console.log('Restarting bot...');
+            document.getElementById('consoleLog').innerHTML += '<p>[INFO] Restarting bot...</p>';
+            setTimeout(() => {
+                document.getElementById('consoleLog').innerHTML += '<p>[INFO] Bot restarted successfully.</p>';
+            }, 2000);
+        }
+
+        function qrCode() {
+            console.log('Generating QR Code...');
+            document.getElementById('consoleLog').innerHTML += '<p>[INFO] Generating QR Code...</p>';
+            // Redirect to the home page
+            window.location.href = '/scan';
+        }
+
+        function pairingCode() {
+            console.log('Pairing code is not available.');
+            document.getElementById('consoleLog').innerHTML += '<p>[INFO] Pairing code is not available.</p>';
+        }
+
+        function toggleMode() {
+            document.body.classList.toggle('dark-mode');
+            const toggleButton = document.querySelector('.toggle-button');
+            if (document.body.classList.contains('dark-mode')) {
+                toggleButton.textContent = 'Light Mode';
+            } else {
+                toggleButton.textContent = 'Dark Mode';
+            }
+        }
+
+        setTimeout(() => {
+            document.getElementById('status').textContent = 'Idle';
+            document.getElementById('loggedIn').textContent = 'Yes';
+            document.getElementById('consoleLog').innerHTML += '<p>[INFO] Bot status updated to Idle.</p>';
+            document.getElementById('consoleLog').innerHTML += '<p>[INFO] User logged in.</p>';
+        }, 3000);
+    </script>
+</body>
+
+</html>
