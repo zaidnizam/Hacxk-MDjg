@@ -256,7 +256,6 @@
                                     window.location.href = '/paircode';
                                 } else if (data === '') {
                                     console.log('Generating QR Code...');
-                                    addLogEntry('[INFO] Generating QR Code...');
                                     fetch('/qrpair')
                                         .then(response => response.text())
                                         .then(data => {
