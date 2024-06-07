@@ -1,8 +1,9 @@
 const pino = require('pino');
 const qrcode = require('qrcode');
+const http = require('http');
 const path = require('path');
 const fs = require('fs');
-const { makeWASocket, useMultiFileAuthState, delay, DisconnectReason, makeCacheableSignalKeyStore, makeInMemoryStore } = require("@whiskeysockets/baileys");
+const { makeWASocket, useMultiFileAuthState, delay, DisconnectReason, makeCacheableSignalKeyStore, makeInMemoryStore, getDevice } = require("@whiskeysockets/baileys");
 const { Boom } = require("@hapi/boom");
 const { messageSend } = require('../Lib/MessageSendFunction/MessageSendFunction');
 const { greetings } = require('../Plugin/Group/Greeting');
@@ -61,8 +62,9 @@ const startWABot = async (io, app, logger) => {
         res.send(pairingCodeEnable)
     });
 
-    
 }
+
+
 
 
 // Function to start the WhatsApp bot
@@ -84,11 +86,12 @@ const startHacxkMd = async (io, app) => {
             });
         });
 
-        // Load bot configuration
-        require('../Config');
-
         // Start WhatsApp bot
         await startWhatsAppBot(io, app, logger);
+
+        app.get('/botstatus', (req, res) => {
+            res.send(isOnline)
+        });
 
     } catch (error) {
         console.error('Error starting WhatsApp bot:', error);
@@ -140,16 +143,11 @@ const startWhatsAppBot = async (io, app, logger) => {
 
             socket.ev.on('creds.update', saveCreds);
 
-            app.get('/restartbota', (req, res) => {
-                socket.end();
-                res.send('Sucessfully Bot Restarted! 🔄')
-                io.emit("msg", 'Sucessfully Bot Restarted! 🔄');
-            });
-
             sock.ev.on('connection.update', async (update) => {
                 const { connection, lastDisconnect } = update;
 
                 if (connection === "open") {
+                    isOnline = true;
                     const sessionManger = global.botSettings.tempSession;
                     if (sessionManger === true) {
                         await SessionHandle("Get");
@@ -164,7 +162,7 @@ const startWhatsAppBot = async (io, app, logger) => {
                     const botName = global.botSettings.botName[0];
                     const botPrefix = global.botSettings.botPrefix[0];
                     await delay(2500);
-    
+
                     const wakeupmsg = await socket.sendMessage(socket.user.id, {
                         text: `
     ❪👑❫ *Owner Name*: ${ownerName}
@@ -176,24 +174,34 @@ const startWhatsAppBot = async (io, app, logger) => {
     > All Credits Goes to Mr Zaid. If you can support our GitHub, we can improve our bot even more...
                 `
                     });
+                    const device = await getDevice(wakeupmsg.key.id);
+                    console.log(device)
+                    io.emit("device", device);
                     await messageSend(socket)
                     await delay(5000);
+                    app.get('/restartbota', (req, res) => {
+                        socket.end();
+                        res.send('Sucessfully Bot Restarted! 🔄')
+                        io.emit("msg", 'Sucessfully Bot Restarted! 🔄');
+                    });
                     await sock.sendPresenceUpdate('available', socket.user.id);
                     return new Promise((resolve, reject) => {
                         setTimeout(async () => {
                             try {
                                 await socket.end();
+                                console.log(';;;;;;;OFFFFFF;;;;;;;;;')
+                                isOnline = false;
                                 resolve();
                             } catch (error) {
                                 reject(error);
                             }
-                        }, 20 * 60 * 1000);
+                        }, 15 * 60 * 1000);
                     });
                 }
 
                 const code = lastDisconnect?.error?.output?.statusCode;
 
-                if (connection === "close" && code) {
+                if (connection === "close" || code) {
                     try {
                         const reason = lastDisconnect && lastDisconnect.error ? new Boom(lastDisconnect.error).output.statusCode : 500;
                         switch (reason) {
@@ -226,7 +234,7 @@ const startWhatsAppBot = async (io, app, logger) => {
                             default:
                                 io.emit("msg", 'Connection closed with bot. Trying to run again. ⚠️');
                                 sock.ev.removeAllListeners();
-                                startHacxk(io, app, logger);
+                                startWhatsAppBot(io, app, logger);
                                 await socket.ws.close();
                                 return;
                         }
@@ -351,7 +359,7 @@ async function startHacxk(io, app, logger, option, sockets) {
 
         sock.ev.on('connection.update', async ({ receivedPendingNotifications }) => {
             if (receivedPendingNotifications && !(sock.authState.creds && sock.authState.creds.myAppStateKeyId)) {
-                await sock.ev.flush();
+                await sock.ev.flush(true);
             }
         });
 
@@ -420,7 +428,7 @@ async function startHacxk(io, app, logger, option, sockets) {
 
         sock.ev.on('connection.update', async ({ receivedPendingNotifications }) => {
             if (receivedPendingNotifications && !(sock.authState.creds && sock.authState.creds.myAppStateKeyId)) {
-                await sock.ev.flush();
+                await sock.ev.flush(true);
             }
         });
 
@@ -486,7 +494,7 @@ async function startHacxk(io, app, logger, option, sockets) {
 
         sock.ev.on('connection.update', async ({ receivedPendingNotifications }) => {
             if (receivedPendingNotifications && !(sock.authState.creds && sock.authState.creds.myAppStateKeyId)) {
-                await sock.ev.flush();
+                await sock.ev.flush(true);
             }
         });
 
@@ -497,7 +505,7 @@ async function startHacxk(io, app, logger, option, sockets) {
 }
 
 async function allEvent(sock, io) {
-const worktype = global.botSettings.botWorkMode[0]
+    const worktype = global.botSettings.botWorkMode[0]
     // Listen for group participants update
     sock.ev.on('group-participants.update', async (update) => {
         if (global.botSettings.greetings === true) {
@@ -514,7 +522,7 @@ const worktype = global.botSettings.botWorkMode[0]
             global.message = m; // Assign m to global.message
             console.log(m);
             //  console.log(JSON.stringify(m));
-            if (global.botSettings.Check.Checkers === true) {
+            if (global.Check.Checkers === true) {
                 handleCheck(sock, m)
             }
             if (worktype === 'private') {

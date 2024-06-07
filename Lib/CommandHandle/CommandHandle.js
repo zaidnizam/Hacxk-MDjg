@@ -1,7 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-require('esm')(module);
-require('../../Config');
+require('../../Config')
 
 const commands = [];
 const commandPrefixes = global.botSettings.botPrefix; // An array of prefixes

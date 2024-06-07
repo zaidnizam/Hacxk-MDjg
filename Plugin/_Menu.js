@@ -1,5 +1,4 @@
-require('esm')(module);
-require('../Config');
+
 const path = require('path');
 const fs = require('fs');
 
@@ -10,10 +9,10 @@ module.exports = (Command) => {
         react: "📜",
         type: 'BOT COMMANDS',
         handler: async (m, sock, commands) => {
-            const BOT_NAME = global.botSettings.botName[0];
-            const ownerNumbers = global.botSettings.ownerNumbers[0];
-            const ownerName = global.botSettings.ownerName[0];
-            const version = global.botSettings.botVersion[0];
+            const BOT_NAME = global.botSettings.botName;
+            const ownerNumbers = global.botSettings.ownerNumbers;
+            const ownerName = global.botSettings.ownerName;
+            const version = global.botSettings.botVersion;
             const prefix = global.botSettings.botPrefix[0];
             const requestedUserName = m.pushName || "User";
             const requestedUserNumber = m.key.remoteJid.endsWith('@g.us') ? m.key.participant : m.key.remoteJid;
