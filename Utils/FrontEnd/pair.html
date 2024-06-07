@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HACXK MD - WhatsApp Pairing Codes</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap');
+
+        body {
+            background: linear-gradient(135deg, #00c6ff, #0072ff);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            color: #fff;
+            text-align: center;
+        }
+
+         /* Additional CSS for background animation and image box */
+    body {
+        animation: changeBackground 15s infinite alternate;
+        background-color: #000000;
+        background-image: linear-gradient(45deg, #FF0000, #00FF00, #0000FF, #FFFF00, #FF00FF);
+        background-size: 400% 400%;
+      }
+  
+      @keyframes changeBackground {
+        0% {
+          background-position: 0% 50%;
+        }
+  
+        100% {
+          background-position: 100% 50%;
+        }
+      }
+  
+
+        h3 {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 32px;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            grid-gap: 20px;
+            max-width: 800px;
+        }
+
+        .box {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out forwards;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .separator {
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .box:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .box:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .box:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .box:nth-child(4) {
+            animation-delay: 0.6s;
+        }
+
+        .box:nth-child(6) {
+            animation-delay: 0.8s;
+        }
+
+        .box:nth-child(7) {
+            animation-delay: 1s;
+        }
+
+        .box:nth-child(8) {
+            animation-delay: 1.2s;
+        }
+
+        .box:nth-child(9) {
+            animation-delay: 1.4s;
+        }
+
+        .skeleton {
+            animation: skeleton-loading 1s linear infinite alternate;
+        }
+
+        @keyframes skeleton-loading {
+            0% {
+                background-color: hsl(200, 20%, 80%);
+            }
+
+            100% {
+                background-color: hsl(200, 20%, 95%);
+            }
+        }
+
+        #error-message {
+            margin-top: 10px;
+            color: #ff4d4d;
+            font-size: 16px;
+        }
+
+        #retry-button {
+            background-color: #ff4d4d;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        #retry-button:hover {
+            background-color: #ff6666;
+        }
+
+        #success-message {
+            margin-top: 20px;
+            color: #28a745;
+            font-size: 20px;
+            display: none;
+        }
+
+        .buttonregenrate {
+            padding: 10px;
+            padding-left: 15px;
+            padding-right: 15px;
+            background-color: #28a745;
+            color: #fff;
+            border-radius: 10px;
+            margin: 10px;
+        }
+
+        .buttonregenrate:hover {
+            transition-duration: 500ms;
+            background-color: #fcfcfc;
+            color: #00da53;
+        }
+    </style>
+</head>
+
+<body>
+    <h3>HACXK MD - PAIRING CODE AUTH</h3>
+    <div class="container">
+        <div class="box skeleton"></div>
+        <div class="box skeleton"></div>
+        <div class="box skeleton"></div>
+        <div class="box skeleton"></div>
+        <div class="separator"></div>
+        <div class="box skeleton"></div>
+        <div class="box skeleton"></div>
+        <div class="box skeleton"></div>
+        <div class="box skeleton"></div>
+    </div>
+    <div id="error-message"></div>
+    <button id="retry-button" style="display:none;" onclick="getUserPairingNumber()">Retry</button>
+    <div id="success-message">Success! Your pairing code is: <span id="pairing-code"></span></div>
+    <br>
+    <br>
+    <button onclick="getUserPairingNumber()" class="buttonregenrate">Regenarate Pairing Code</button>
+    <script>
+        function sanitizeInput(input) {
+            return input.replace(/\D/g, '');
+        }
+
+        window.onload = function () {
+            fetch('/opt')
+            .then(response => response.text())
+            .then(data => {
+            if (data === 'true')  {
+                    // Redirect to the home page
+                    window.location.href = '/';
+                } else {
+                    fetch('/authopt')
+                    .then(response => response.text())
+                    .then(data => {
+                      alert(data)
+                      if (data === 'false') {
+                        alert('Your are Selected QR CODE! If You Want to Pair With Pairing Code First Delete Session And Choose PAIRING CODE AUTH in Option!');
+                        // Redirect to the home page
+                        window.location.href = '/scan';
+                      } else if (data === '') {
+                         // Redirect to the home page
+                         window.location.href = '/';
+                      } else {
+                          fetch('/pairingcode')
+                          .then(response => response.text())
+                          .then(data => {
+                              alert(data); // Alert the response message (e.g., "New QR code generated!")
+                          })
+                          .catch(error => {
+                              console.error('Error:', error);
+                          });
+                      }
+                    })
+                    .catch(error => {
+                      console.error('Error:', error);
+                    });
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+          }
+
+        function getUserPairingNumber() {
+            const pairingNumber = prompt("Please enter your pairing number (without '+' and country code):");
+            if (pairingNumber === null || pairingNumber.trim() === "") {
+                showError("Please enter a valid pairing number.");
+                return;
+            }
+            if (pairingNumber.includes('+')) {
+                showError("Please do not include the '+' symbol.");
+                return;
+            }
+
+            const sanitizedNumber = sanitizeInput(pairingNumber);
+            if (sanitizedNumber.length < 4) {
+                showError("Please enter at least 4 digits.");
+                return;
+            }
+            fetchPairingCode(sanitizedNumber);
+        }
+
+        function displayPairingCode(pairingCode) {
+            const boxes = document.querySelectorAll('.box');
+            const codeChars = pairingCode.slice(0, 8).split('');
+            codeChars.forEach((char, index) => {
+                if (index < boxes.length) {
+                    boxes[index].textContent = char;
+                    boxes[index].classList.remove('skeleton');
+                }
+            });
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('retry-button').style.display = 'none';
+            document.getElementById('success-message').style.display = 'block';
+            document.getElementById('pairing-code').textContent = pairingCode;
+        }
+
+        function showError(message) {
+            document.getElementById('error-message').textContent = message;
+            document.getElementById('retry-button').style.display = 'block';
+        }
+
+        async function fetchPairingCode(pairingNumber) {
+            try {
+                const response = await fetch('/pairnumber', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ pairingNumber }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get pairing code.! Wait a moment');
+                }
+
+                const pairingCode = await response.text();
+                displayPairingCode(pairingCode);
+            } catch (error) {
+                showError(error.message);
+            }
+        }
+
+        alert("Please enter your country code followed by your mobile number (e.g., 911234567890). Do not use the '+' symbol for the country code.");
+        getUserPairingNumber();
+
+        window.onload = function () {
+        fetch('/opt')
+        .then(response => response.text())
+        .then(data => {
+        if (data === 'true')  {
+                // Redirect to the home page
+                window.location.href = '/';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    </script>
+</body>
+
+</html>
