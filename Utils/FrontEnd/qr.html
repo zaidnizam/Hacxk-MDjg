@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <link rel="stylesheet" href="./styles/style.css">
+  <title>HACXK MD - QR CODE AUTH!</title>
+  <!-- Include Tailwind CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@latest/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Include Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Monoton&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles/style.css">
+  <style>
+    /* Additional CSS for background animation and image box */
+    body {
+      animation: changeBackground 15s infinite alternate;
+      background-color: #000000;
+      background-image: linear-gradient(45deg, #FF0000, #00FF00, #0000FF, #FFFF00, #FF00FF);
+      background-size: 400% 400%;
+    }
+
+    @keyframes changeBackground {
+      0% {
+        background-position: 0% 50%;
+      }
+
+      100% {
+        background-position: 100% 50%;
+      }
+    }
+
+    .responsive-box {
+      max-width: 300px;
+      max-height: 300px;
+      width: 100%;
+      height: 100%;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      animation: pulsate 2s infinite;
+    }
+
+    @keyframes pulsate {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.0005);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .responsive-box img {
+      max-width: 300px;
+      max-height: 300px;
+      width: auto;
+      height: auto;
+      object-fit: fill;
+    }
+
+    .heading {
+      font-family: 'Monoton', cursive;
+      font-size: 3rem;
+      color: #FFFFFF;
+      text-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, 0 0 30px #FFFFFF, 0 0 40px #FF00DE, 0 0 70px #FF00DE, 0 0 80px #FF00DE, 0 0 100px #FF00DE, 0 0 150px #FF00DE;
+      animation: neon 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes neon {
+      from {
+        text-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, 0 0 30px #FFFFFF, 0 0 40px #FF00DE, 0 0 70px #FF00DE, 0 0 80px #FF00DE, 0 0 100px #FF00DE, 0 0 150px #FF00DE;
+      }
+
+      to {
+        text-shadow: 0 0 5px #FFFFFF, 0 0 10px #FFFFFF, 0 0 15px #FFFFFF, 0 0 20px #FF00DE, 0 0 35px #FF00DE, 0 0 40px #FF00DE, 0 0 50px #FF00DE, 0 0 75px #FF00DE;
+      }
+    }
+
+    button {
+      background-color: #3d3b3b;
+      color: #FFFFFF;
+      padding: 10px 20px;
+      border: 2px solid #4d4a4a;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      margin: 10px;
+      cursor: pointer;
+      outline: none;
+    }
+
+    button:hover {
+      background-color: #FFFFFF;
+      color: #000000;
+      box-shadow: 0 0 10px #FFFFFF, 0 0 20px #FFFFFF, 0 0 30px #FFFFFF, 0 0 40px #FF00DE, 0 0 70px #FF00DE, 0 0 80px #FF00DE, 0 0 100px #FF00DE, 0 0 150px #FF00DE;
+    }
+
+    .notification-container {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.8);
+      color: #FFFFFF;
+      padding: 20px;
+      border-radius: 10px;
+      font-size: 1.5rem;
+      z-index: 999;
+      display: none;
+    }
+
+    .notification-container.show {
+      display: block;
+      animation: slideIn 0.5s ease forwards, fadeOut 2s ease 2s forwards;
+    }
+
+    @keyframes slideIn {
+      0% {
+        top: -100px;
+      }
+
+      100% {
+        top: 20px;
+      }
+    }
+
+    @keyframes fadeOut {
+      0% {
+        opacity: 1;
+      }
+
+      100% {
+        opacity: 0;
+      }
+    }
+
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100vh;
+      background: linear-gradient(to bottom right, #1a1a1a, #0d0d0d);
+    }
+
+    .spinner-container {
+      display: inline-block;
+      position: relative;
+      width: 120px;
+      height: 120px;
+      animation: rotate 2s linear infinite;
+    }
+
+    .spinner-ring {
+      box-sizing: border-box;
+      display: block;
+      position: absolute;
+      width: 96px;
+      height: 96px;
+      margin: 12px;
+      border-radius: 50%;
+      border: 6px solid transparent;
+      border-top-color: #ff2f33;
+      border-bottom-color: #2464dc;
+    }
+
+    .spinner-ring:nth-child(1) {
+      animation: rotate-reverse 2s linear infinite;
+    }
+
+    .spinner-ring:nth-child(2) {
+      animation: rotate 2s linear infinite;
+    }
+
+    .spinner-ring:nth-child(3) {
+      animation: rotate-reverse 2s linear infinite;
+    }
+
+    .spinner-ring:nth-child(4) {
+      animation: rotate 2s linear infinite;
+    }
+
+    @keyframes rotate {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes rotate-reverse {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(-360deg);
+      }
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .spinner-ring {
+      animation: pulse 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    }
+  </style>
+</head>
+
+<body class="flex flex-col justify-center items-center min-h-screen">
+  <!-- Notification Container -->
+  <div id="notificationContainer" class="notification-container"></div>
+  <!-- Heading -->
+  <p id="notification" class="heading mb-8">
+    HACXK MD - QR - PAIRING
+  </p>
+  <!-- Responsive Image Box (Initially Hidden) -->
+  <div class="responsive-box bg-gray-300 rounded-lg overflow-hidden mb-8" id="responsiveBox">
+    <main id="loadingAnimation" class="loading-animation">
+      <div class="loading-spinner">
+        <div class="spinner-container">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+        </div>
+      </div>
+    </main>
+
+
+    <img src="https://via.placeholder.com/300" alt="Placeholder Image" class="hidden" id="placeholderImage">
+  </div>
+  <!-- Buttons -->
+  <div class="flex">
+    <button onclick="restart()">RESTART</button>
+    <button onclick="getNewQR()">GET NEW QR!</button>
+  </div>
+
+  <!-- Include Socket.IO -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+  <script>
+
+    window.onload = function () {
+      fetch('/opt')
+        .then(response => response.text())
+        .then(data => {
+          if (data === 'true') {
+            // Redirect to the home page
+            window.location.href = '/';
+          } else {
+            fetch('/authopt')
+              .then(response => response.text())
+              .then(data => {
+                alert(data)
+                if (data === 'true') {
+                  alert('Your are Selected Pairing Code! If You Want to Pair With QR Code First Delete Session And Choose QR CODE AUTH in Option!');
+                  // Redirect to the home page
+                  window.location.href = '/paircode';
+                } else if (data === '') {
+                  // Redirect to the home page
+                  window.location.href = '/';
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+              });
+          }
+        })
+    }
+    // Connect to the server
+    const socket = io();
+
+    // Listen for the 'msg' event from the server
+    socket.on('msg', (message) => {
+      displayNotification(message);
+    });
+
+    function displayNotification(message) {
+      // Create a new notification container
+      const notificationContainer = document.createElement("div");
+      notificationContainer.classList.add("notification-container");
+      notificationContainer.innerText = message;
+
+      // Add the container to the body
+      document.body.appendChild(notificationContainer);
+
+      // Show the container
+      notificationContainer.classList.add("show");
+
+      // Hide the container after 5 seconds
+      setTimeout(() => {
+        notificationContainer.classList.remove("show");
+        // Remove the container after fading out
+        notificationContainer.remove();
+      }, 5000);
+    }
+
+    // Listen for the 'qr' event from the server
+    socket.on('qr', (qrUrl) => {
+      // Hide the loading animation
+      const loadingAnimation = document.getElementById('loadingAnimation');
+      loadingAnimation.classList.add('hidden');
+
+      // Show the placeholder image
+      const placeholderImage = document.getElementById('placeholderImage');
+      placeholderImage.classList.remove('hidden');
+
+      // Get the img element
+      const imgElement = placeholderImage;
+
+      // Set the src attribute with the received QR URL
+      imgElement.src = qrUrl;
+    });
+
+    // Listen for the 'connected' event from the server
+    socket.on('connected', (connectedMessage) => {
+      // Redirect to the home page
+      window.location.href = '/';
+    });
+
+
+    function restart() {
+      // Refresh the page
+      window.location.reload();
+    }
+
+    // In your client-side JavaScript file
+    function getNewQR() {
+      // Make a GET request to the /getNewQR endpoint
+      fetch('/getNewQR')
+        .then(response => response.text())
+        .then(data => {
+          // Handle the response from the server
+          alert(data); // Alert the response message (e.g., "New QR code generated!")
+        })
+        .catch(error => {
+          console.error('Error:', error);
+        });
+    }
+  </script>
+
+</body>
+
+
+</html>
