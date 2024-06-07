@@ -148,6 +148,7 @@ const startWhatsAppBot = async (io, app, logger) => {
 
                 if (connection === "open") {
                     isOnline = true;
+                    isLogged = true;
                     const sessionManger = global.botSettings.tempSession;
                     if (sessionManger === true) {
                         await SessionHandle("Get");
