@@ -2,8 +2,6 @@ const ytdl = require('ytdl-core');
 const { youtube } = require('scrape-youtube');
 const fs = require('fs');
 const path = require('path');
-require('esm')(module);
-require('../Config');
 
 // Function to extract video ID from URL
 function getVideoIdFromUrl(link) {
@@ -158,7 +156,7 @@ module.exports = (Command) => {
                     const sizeInMB = (videoFormat.contentLength / (1024 * 1024)).toFixed(2);
                     const limitedDescription = description.length > 50 ? description.substring(0, 50) + '...' : description || undefined;
 
-                    const botName = global.botSettings.botName[0];
+                    const botName = global.botSettings.botName;
 
                     const mes = `
 -------✧*̥˚ ${botName} YT DOWNLOADER*̥˚✧

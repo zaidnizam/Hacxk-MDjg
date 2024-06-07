@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Settings</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #6366f1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #4b5563;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="checkbox"] {
+            width: calc(100% - 20px);
+            padding: 12px;
+            margin-bottom: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+            font-size: 22px;
+            background-color: #edf2f7;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="checkbox"]:focus {
+            outline: none;
+            border-color: #6366f1;
+            transform: scale(1.02);
+            box-shadow: 0 0 40pc rgba(99, 102, 241, 0.2);
+        }
+
+        #saveSettingsBtn {
+            padding: 15px;
+            background-color: #6366f1;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-size: 18px;
+            border: none;
+            display: block;
+            width: 100%;
+        }
+
+        #saveSettingsBtn:hover {
+            background-color: #4f46e5;
+        }
+
+        .btn {
+            background-color: #6366f1;
+            color: #fff;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #4f46e5;
+            transform: scale(1.05);
+        }
+
+        #errorMessage {
+            color: red;
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container p-6">
+        <h1 class="text-3xl font-bold text-blue-500 mb-8">Bot Settings</h1>
+        <div id="settingsContainer">
+            <!-- Settings will be dynamically added here -->
+        </div>
+        <button id="saveSettingsBtn" class="w-full mt-8 btn">Save Settings</button>
+        <p id="errorMessage"></p>
+    </div>
+    <button onclick="homeredirect()"
+        class="fixed bottom-8 right-8 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full btn">Go
+        To Home Page 🏠</button>
+
+    <script>
+
+        function homeredirect() {
+            window.location.href = '/';
+        }
+
+        let originalValues = {};
+        let changedValues = {};
+
+        fetch('/getGlobalObjects')
+            .then(response => response.json())
+            .then(globalObjects => {
+                const settingsContainer = document.getElementById('settingsContainer');
+
+                for (const objectName in globalObjects) {
+                    if (globalObjects.hasOwnProperty(objectName)) {
+                        const object = globalObjects[objectName];
+                        for (const key in object) {
+                            if (object.hasOwnProperty(key)) {
+                                const label = document.createElement('label');
+                                label.textContent = `${objectName}: ${key}`;
+                                settingsContainer.appendChild(label);
+
+                                let input;
+                                if (typeof object[key] === 'boolean') {
+                                    input = document.createElement('input');
+                                    input.setAttribute('type', 'checkbox');
+                                    input.checked = object[key];
+                                } else if (!isNaN(object[key])) {
+                                    input = document.createElement('input');
+                                    input.setAttribute('type', 'number');
+                                    input.setAttribute('step', 'any');
+                                    input.value = object[key];
+                                } else {
+                                    input = document.createElement('input');
+                                    input.setAttribute('type', 'text');
+                                    input.value = object[key];
+                                }
+
+                                input.setAttribute('name', key);
+                                input.setAttribute('placeholder', key);
+
+                                originalValues[`${objectName}:${key}`] = object[key];
+
+                                input.addEventListener('input', function () {
+                                    const newValue = this.type === 'checkbox' ? this.checked : this.value;
+                                    const fieldName = `${objectName}:${key}`;
+                                    changedValues[fieldName] = newValue;
+                                });
+
+                                settingsContainer.appendChild(input);
+                            }
+                        }
+                    }
+                }
+
+                console.log('Original Values:', originalValues);
+            });
+
+        document.getElementById('saveSettingsBtn').addEventListener('click', function () {
+            const errorMessageElement = document.getElementById('errorMessage');
+            errorMessageElement.textContent = ''; // Clear previous error message
+
+            for (const fieldName in changedValues) {
+                if (changedValues.hasOwnProperty(fieldName)) {
+                    const newValue = changedValues[fieldName];
+                    const [objectName, key] = fieldName.split(':');
+
+                    // Check for empty number inputs
+                    const inputElement = document.querySelector(`input[name="${key}"]`);
+                    if (inputElement && inputElement.type === 'number' && newValue === '') {
+                        errorMessageElement.textContent = 'Error: Number fields cannot be empty.';
+                        return;
+                    }
+
+                    // Check for invalid number inputs
+                    if (inputElement && inputElement.type === 'number' && isNaN(newValue)) {
+                        errorMessageElement.textContent = 'Error: Invalid number input.';
+                        return;
+                    }
+                }
+            }
+
+            fetch('/updateSettings', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(changedValues)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Server response:', data);
+                    fetch('/refreshconfig')
+                    .then(response => response.text())
+                    .then(data => {
+                        console.log(data)
+                    })
+                    .catch(error => {
+                        console.log(error)
+                    })
+                    
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+
+</html>
